@@ -22,6 +22,7 @@ class ProdutosModule(BaseModule):
         self.create_lista_produtos_tab()
         
         self.current_produto_id = None
+        self.loaded_tipo_atual = None  # Tipo do registro atualmente carregado (para prevenir conversões indesejadas)
         self.kit_items = []  # Lista de itens do kit
         self.carregar_produtos()
         
@@ -382,11 +383,36 @@ class ProdutosModule(BaseModule):
             self.ncm_entry.config(state='normal')
             print("DEBUG: Campo NCM habilitado")  # Debug
         
+        # Se o usuário mudar o tipo para um diferente do carregado e houver um registro em edição,
+        # evitar converter o registro original (ex.: Produto -> Kit). Criar um novo registro.
+        try:
+            if self.current_produto_id and self.loaded_tipo_atual and current_tipo != self.loaded_tipo_atual:
+                # Resetar ID para forçar INSERT em vez de UPDATE
+                print(f"DEBUG: Alteração de tipo {self.loaded_tipo_atual} -> {current_tipo}; resetando ID para novo cadastro")
+                self.current_produto_id = None
+                # Para segurança, quando destino for Kit, iniciar composição vazia
+                if current_tipo == "Kit":
+                    self.kit_items = []
+                    if hasattr(self, 'kit_items_tree'):
+                        self.atualizar_kit_tree()
+                # Informar usuário (opcional)
+                try:
+                    self.show_info("Novo cadastro", f"Alterar o tipo de {self.loaded_tipo_atual} para {current_tipo} criará um novo cadastro.")
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
         # Controlar seção de kit
         if hasattr(self, 'kit_section_frame'):
             if current_tipo == "Kit":
                 self.kit_section_frame.pack(fill="both", expand=True, pady=(15, 0))
                 print("DEBUG: Seção de kit EXIBIDA")  # Debug
+                # Se estamos iniciando um novo cadastro (sem ID), garantir que a composição do kit comece vazia
+                if not self.current_produto_id:
+                    self.kit_items = []
+                    if hasattr(self, 'kit_items_tree'):
+                        self.atualizar_kit_tree()
             else:
                 self.kit_section_frame.pack_forget()
                 print("DEBUG: Seção de kit OCULTADA")  # Debug
@@ -508,6 +534,7 @@ class ProdutosModule(BaseModule):
             
     def novo_produto(self):
         self.current_produto_id = None
+        self.loaded_tipo_atual = None
         self.nome_var.set("")
         self.tipo_var.set("Produto")
         self.ncm_var.set("")
@@ -515,6 +542,10 @@ class ProdutosModule(BaseModule):
         self.descricao_var.set("")
         self.ativo_var.set(True)
         self.ncm_entry.config(state='normal') # Habilita o campo NCM para produtos
+        try:
+            self.on_tipo_changed(None)
+        except Exception:
+            pass
         
     def salvar_produto(self):
         nome = self.nome_var.get().strip()
@@ -538,6 +569,15 @@ class ProdutosModule(BaseModule):
         except ValueError:
             self.show_warning("Valor inválido.")
             return
+
+        # Prevenir que um produto vire kit sem intenção: caso um registro existente de Produto/Serviço
+        # esteja com tipo alterado para "Kit", forçar novo cadastro (não UPDATE)
+        try:
+            if self.current_produto_id and self.loaded_tipo_atual and tipo == "Kit" and self.loaded_tipo_atual != "Kit":
+                print("DEBUG: Convertendo Produto/Serviço em Kit - criando novo cadastro de Kit")
+                self.current_produto_id = None
+        except Exception:
+            pass
             
         conn = sqlite3.connect(DB_NAME)
         c = conn.cursor()
@@ -586,6 +626,8 @@ class ProdutosModule(BaseModule):
             
             self.carregar_produtos()
             self.carregar_produtos_para_kit()  # Atualizar lista para kits
+            # Atualizar tipo carregado atual para refletir o registro em edição
+            self.loaded_tipo_atual = tipo
             # Evitar reaproveitar composição anterior em um novo kit
             if tipo == "Kit":
                 self.kit_items = []
@@ -710,6 +752,7 @@ class ProdutosModule(BaseModule):
                 self.tipo_var.set("Kit")
                 self.descricao_var.set(produto[5] or "")  # descricao
                 self.ativo_var.set(bool(produto[6]))  # ativo
+                self.loaded_tipo_atual = "Kit"
                 
                 # Garantir estado da UI
                 self.on_tipo_changed(None)
@@ -759,6 +802,7 @@ class ProdutosModule(BaseModule):
                 self.valor_var.set(f"{produto[4]:.2f}" if produto[4] else "0.00")  # valor_unitario
                 self.descricao_var.set(produto[5] or "")  # descricao
                 self.ativo_var.set(bool(produto[6]))  # ativo
+                self.loaded_tipo_atual = (produto[2] or "Produto")
                 
                 # Garantir estado da UI (NCM/Kit)
                 self.on_tipo_changed(None)
