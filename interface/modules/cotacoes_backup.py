@@ -821,14 +821,18 @@ class CotacoesModule(BaseModule):
 		list_container = tk.Frame(parent, bg='white')
 		list_container.pack(fill="both", expand=True)
 		
-		# Treeview com colunas otimizadas para locação
-		columns = ("nome", "qtd", "valor_unit", "meses", "inicio", "fim", "valor_total", "descricao", "tipo_operacao")
+		# Treeview com 13 colunas para compatibilidade total com salvar/carregar/PDF
+		columns = ("tipo", "nome", "qtd", "valor_unit", "mao_obra", "deslocamento", "estadia", "meses", "inicio", "fim", "valor_total", "descricao", "tipo_operacao")
 		self.itens_tree = ttk.Treeview(list_container, columns=columns, show="headings", height=8)
 		
 		# Cabeçalhos
+		self.itens_tree.heading("tipo", text="Tipo")
 		self.itens_tree.heading("nome", text="Nome/Equipamento")
 		self.itens_tree.heading("qtd", text="Qtd")
 		self.itens_tree.heading("valor_unit", text="Valor Unit./Mensal")
+		self.itens_tree.heading("mao_obra", text="Mão de Obra")
+		self.itens_tree.heading("deslocamento", text="Desloc.")
+		self.itens_tree.heading("estadia", text="Estadia")
 		self.itens_tree.heading("meses", text="Meses")
 		self.itens_tree.heading("inicio", text="Início")
 		self.itens_tree.heading("fim", text="Fim")
@@ -836,16 +840,20 @@ class CotacoesModule(BaseModule):
 		self.itens_tree.heading("descricao", text="Descrição")
 		self.itens_tree.heading("tipo_operacao", text="Operação")
 		
-		# Larguras otimizadas para melhor visualização
-		self.itens_tree.column("nome", width=250, minwidth=200)
-		self.itens_tree.column("qtd", width=50, minwidth=40)
+		# Larguras
+		self.itens_tree.column("tipo", width=80, minwidth=70)
+		self.itens_tree.column("nome", width=220, minwidth=180)
+		self.itens_tree.column("qtd", width=60, minwidth=50)
 		self.itens_tree.column("valor_unit", width=110, minwidth=90)
-		self.itens_tree.column("meses", width=50, minwidth=40)
+		self.itens_tree.column("mao_obra", width=100, minwidth=90)
+		self.itens_tree.column("deslocamento", width=90, minwidth=80)
+		self.itens_tree.column("estadia", width=90, minwidth=80)
+		self.itens_tree.column("meses", width=60, minwidth=50)
 		self.itens_tree.column("inicio", width=90, minwidth=80)
 		self.itens_tree.column("fim", width=90, minwidth=80)
-		self.itens_tree.column("valor_total", width=90, minwidth=80)
-		self.itens_tree.column("descricao", width=180, minwidth=150)
-		self.itens_tree.column("tipo_operacao", width=70, minwidth=60)
+		self.itens_tree.column("valor_total", width=100, minwidth=90)
+		self.itens_tree.column("descricao", width=220, minwidth=160)
+		self.itens_tree.column("tipo_operacao", width=90, minwidth=70)
 		
 		# Scrollbars vertical e horizontal
 		v_scrollbar = ttk.Scrollbar(list_container, orient="vertical", command=self.itens_tree.yview)
@@ -1057,18 +1065,39 @@ class CotacoesModule(BaseModule):
 			tipo_operacao = 'Compra'
 			descricao_completa = descricao
 		
-		# Adicionar à lista
-		self.itens_tree.insert("", "end", values=(
-			nome,
-			f"{quantidade:.2f}",
-			format_currency(valor_unitario),
-			meses,
-			inicio_fmt,
-			fim_fmt,
-			format_currency(valor_total),
-			descricao_completa,
-			tipo_operacao
-		))
+		# Adicionar à lista no formato de 13 colunas
+		if modo == 'Locação':
+			self.itens_tree.insert("", "end", values=(
+				"Produto",
+				nome,
+				f"{quantidade:.2f}",
+				format_currency(valor_unitario),
+				format_currency(0),
+				format_currency(0),
+				format_currency(0),
+				meses,
+				inicio_fmt,
+				fim_fmt,
+				format_currency(valor_total),
+				descricao_completa,
+				"Locação"
+			))
+		else:
+			self.itens_tree.insert("", "end", values=(
+				tipo,
+				nome,
+				f"{quantidade:.2f}",
+				format_currency(valor_unitario),
+				format_currency(mao_obra),
+				format_currency(deslocamento),
+				format_currency(estadia),
+				"",
+				"",
+				"",
+				format_currency(valor_total),
+				descricao_completa,
+				"Compra"
+			))
 		
 		# Limpar campos baseado no modo
 		if modo == 'Locação':
@@ -1607,7 +1636,7 @@ class CotacoesModule(BaseModule):
 			for row in c.fetchall():
 				(tipo, nome, qtd, valor_unit, total, desc, mao_obra, desloc, estadia, meses, inicio, fim, tipo_oper) = row
 				self.itens_tree.insert("", "end", values=(
-					tipo,
+					tipo or "Produto",
 					nome,
 					f"{qtd:.2f}",
 					format_currency(valor_unit),
