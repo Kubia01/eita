@@ -382,6 +382,7 @@ class LocacoesModule(BaseModule):
 		try:
 			conn = sqlite3.connect(DB_NAME)
 			c = conn.cursor()
+			# Carregar contatos do cliente
 			c.execute("SELECT nome FROM contatos WHERE cliente_id = ? ORDER BY nome", (cliente_id,))
 			contatos = [row[0] for row in c.fetchall()]
 			self.contato_cliente_combo['values'] = contatos
@@ -389,6 +390,14 @@ class LocacoesModule(BaseModule):
 				self.contato_cliente_var.set(contatos[0])
 			else:
 				self.contato_cliente_var.set("")
+			# Preencher condição de pagamento a partir do cadastro do cliente
+			try:
+				c.execute("SELECT prazo_pagamento FROM clientes WHERE id = ?", (cliente_id,))
+				res = c.fetchone()
+				if res and res[0]:
+					self.condicao_pagamento_var.set(res[0])
+			except Exception:
+				pass
 		except Exception as e:
 			print(f"Erro ao carregar contatos: {e}")
 		finally:

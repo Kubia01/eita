@@ -319,13 +319,16 @@ def gerar_pdf_cotacao_nova(cotacao_id, db_name, current_user=None, contato_nome=
             # fallback para mapeamento estático
             template_jpeg_path = obter_template_capa_jpeg(responsavel_username)
         if template_jpeg_path and os.path.exists(template_jpeg_path):
-            # Adicionar capa personalizada reduzida e posicionada
-            capa_width = 120  # Largura reduzida
-            capa_height = 120  # Altura reduzida  
-            x_pos = (210 - capa_width) / 2  # Centralizada
-            y_pos = 105  # Posição Y no terço superior
-            
-            pdf.image(template_jpeg_path, x=x_pos, y=y_pos, w=capa_width, h=capa_height)
+            # Cobrir a página inteira com o template do usuário (comportamento anterior)
+            try:
+                pdf.image(template_jpeg_path, x=0, y=0, w=210, h=297)
+            except Exception:
+                # Fallback: centralizado menor caso haja erro de proporção
+                capa_width = 120
+                capa_height = 120
+                x_pos = (210 - capa_width) / 2
+                y_pos = 105
+                pdf.image(template_jpeg_path, x=x_pos, y=y_pos, w=capa_width, h=capa_height)
         # Não exibir nenhum texto na capa
         pdf.set_text_color(0, 0, 0)
 
