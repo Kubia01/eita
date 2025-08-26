@@ -871,6 +871,8 @@ class CotacoesModule(BaseModule):
 		
 		# Configurar altura da tabela para ocupar melhor o espaço disponível
 		self.itens_tree.configure(height=15)
+		# Permitir edição por duplo clique
+		self.itens_tree.bind("<Double-1>", self.on_item_double_click)
 		
 		# Botões para itens
 		item_buttons = tk.Frame(parent, bg='white')
@@ -1134,6 +1136,81 @@ class CotacoesModule(BaseModule):
 			self.itens_tree.delete(item)
 			
 		self.atualizar_total()
+
+	def on_item_double_click(self, event=None):
+		"""Editar item selecionado da tabela (Compra/Locação)"""
+		selected = self.itens_tree.selection()
+		if not selected:
+			return
+		iid = selected[0]
+		vals = list(self.itens_tree.item(iid)['values'])
+		# Esperamos 13 colunas
+		if len(vals) != 13:
+			return
+		modal = tk.Toplevel(self.frame)
+		modal.title("Editar Item da Proposta")
+		modal.grab_set()
+		labels = [
+			("Tipo", 0),
+			("Nome/Equipamento", 1),
+			("Quantidade", 2),
+			("Valor Unitário", 3),
+			("Mão de Obra", 4),
+			("Deslocamento", 5),
+			("Estadia", 6),
+			("Meses", 7),
+			("Início (DD/MM/AAAA)", 8),
+			("Fim (DD/MM/AAAA)", 9),
+			("Valor Total", 10),
+			("Descrição", 11),
+			("Operação", 12),
+		]
+		entries = {}
+		row = 0
+		for label, idx in labels:
+			tk.Label(modal, text=label).grid(row=row, column=0, sticky="w", padx=8, pady=4)
+			var = tk.StringVar(value=str(vals[idx]))
+			ent = tk.Entry(modal, textvariable=var, width=50)
+			ent.grid(row=row, column=1, padx=8, pady=4)
+			entries[idx] = var
+			row += 1
+		def salvar_edicao():
+			try:
+				# Parse campos numéricos formatados
+				qtd = float(entries[2].get().replace(',', '.'))
+				valor_unit = clean_number(entries[3].get())
+				mao_obra = clean_number(entries[4].get() or '0')
+				desloc = clean_number(entries[5].get() or '0')
+				estadia = clean_number(entries[6].get() or '0')
+				meses = int(entries[7].get() or 0) if str(entries[7].get() or '').strip().isdigit() else 0
+				# Recalcular total (para locação usa meses; para compra soma custos)
+				if (entries[12].get() or '').lower().startswith('loca'):
+					total = (valor_unit or 0) * (meses or 0) * (qtd or 0)
+				else:
+					total = (qtd or 0) * ((valor_unit or 0) + (mao_obra or 0) + (desloc or 0) + (estadia or 0))
+				# Atualizar vetor
+				vals[0] = entries[0].get().strip() or 'Produto'
+				vals[1] = entries[1].get().strip()
+				vals[2] = f"{qtd:.2f}"
+				vals[3] = format_currency(valor_unit)
+				vals[4] = format_currency(mao_obra)
+				vals[5] = format_currency(desloc)
+				vals[6] = format_currency(estadia)
+				vals[7] = str(meses or '')
+				vals[8] = entries[8].get().strip()
+				vals[9] = entries[9].get().strip()
+				vals[10] = format_currency(total)
+				vals[11] = entries[11].get().strip()
+				vals[12] = entries[12].get().strip() or 'Compra'
+				self.itens_tree.item(iid, values=tuple(vals))
+				self.atualizar_total()
+				modal.destroy()
+			except Exception as e:
+				messagebox.showerror("Erro", f"Não foi possível salvar alterações: {e}")
+		btns = tk.Frame(modal)
+		btns.grid(row=row, column=0, columnspan=2, pady=(8, 4))
+		self.create_button(btns, "Salvar", salvar_edicao, bg='#10b981').pack(side="left", padx=6)
+		self.create_button(btns, "Cancelar", modal.destroy, bg='#64748b').pack(side="left", padx=6)
 		
 	def parse_date_input(self, s):
 		"""Converter entrada DD/MM/AAAA ou AAAA-MM-DD para AAAA-MM-DD"""
