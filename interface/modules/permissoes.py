@@ -312,3 +312,12 @@ class PermissoesModule(BaseModule):
             return user_level == 'controle_total'
             
         return False
+
+    def handle_event(self, event_type, data=None):
+        """Atualizações reativas para a aba de permissões"""
+        if event_type == 'usuario_created':
+            try:
+                self.carregar_usuarios()
+                print("DEBUG: Permissões - lista de usuários atualizada após criação de usuário")
+            except Exception as e:
+                print(f"Aviso: falha ao atualizar usuários nas permissões: {e}")

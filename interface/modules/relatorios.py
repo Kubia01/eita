@@ -1383,6 +1383,9 @@ class RelatoriosModule(BaseModule):
 		if event_type == 'usuario_created':
 			print("DEBUG: Evento usuario_created recebido via handle_event, atualizando lista de técnicos...")
 			self.refresh_tecnicos()
+		elif event_type == 'cliente_created':
+			print("DEBUG: Evento cliente_created recebido via handle_event, atualizando lista de clientes...")
+			self.refresh_clientes()
 
 	def excluir_relatorio(self):
 		selected = self.relatorios_tree.selection()
