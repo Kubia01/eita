@@ -561,7 +561,11 @@ def gerar_pdf_relatorio(relatorio_id, db_name):
         pdf.numero_relatorio = get_value("numero_relatorio")
         pdf.data_relatorio = format_date(get_value("data_criacao"))
         
-        # Iniciar diretamente com o conteúdo
+        # Adicionar capa personalizada com logo
+        cliente_data = [get_value("nome"), get_value("nome_fantasia"), get_value("cnpj")]
+        pdf.add_custom_cover(relatorio_data, cliente_data)
+        
+        # Iniciar com o conteúdo principal
         pdf.add_page()
         
         # === PÁGINA 1: INFORMAÇÕES GERAIS ===
