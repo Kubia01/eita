@@ -123,7 +123,7 @@ class MainWindow:
         
         logout_btn = tk.Button(right_frame,
                               text="SAIR",
-                              font=('Arial', 10, 'bold'),
+                              font=('Arial', 8, 'bold'),
                               bg='#000000',
                               fg='#ffffff',
                               bd=2,
