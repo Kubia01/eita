@@ -231,6 +231,7 @@ class RelatoriosModule(BaseModule):
 		self.formulario_servico_var = tk.StringVar()
 		self.tipo_servico_var = tk.StringVar()
 		self.data_recebimento_var = tk.StringVar()
+		self.filial_var = tk.StringVar(value="2 - WORLD COMP DO BRASIL COMPRESSORES LTDA")
 		
 		row = 0
 		
