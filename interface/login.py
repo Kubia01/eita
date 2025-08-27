@@ -4,6 +4,7 @@ import sqlite3
 import hashlib
 
 from database import DB_NAME, criar_banco
+from utils.theme import apply_theme, PALETTE, FONTS
 from interface.main_window import MainWindow
 
 
@@ -21,7 +22,7 @@ class LoginWindow:
         # Janela de login como Toplevel
         self.window = tk.Toplevel(self.root)
         self.window.title("Login - CRM Compressores")
-        self.window.configure(bg="#f8fafc")
+        self.window.configure(bg=PALETTE["bg_app"]) 
         self.window.geometry("420x320")
         self.window.resizable(False, False)
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)
@@ -38,44 +39,48 @@ class LoginWindow:
         self.username_var = tk.StringVar()
         self.password_var = tk.StringVar()
 
+        # Apply theme once the window is created
+        try:
+            apply_theme(self.window)
+        except Exception:
+            pass
+
         self._build_ui()
 
         # Foco inicial
         self.window.after(50, lambda: self.username_entry.focus_set())
 
     def _build_ui(self):
-        container = tk.Frame(self.window, bg="#f8fafc")
+        container = tk.Frame(self.window, bg=PALETTE["bg_app"])
         container.pack(fill="both", expand=True, padx=24, pady=24)
 
         title = tk.Label(
             container,
             text="Acesse o sistema",
-            font=("Arial", 16, "bold"),
-            bg="#f8fafc",
+            font=FONTS["title"],
+            bg=PALETTE["bg_app"],
             fg="#1e293b",
         )
         title.pack(anchor="center", pady=(0, 16))
 
-        form = tk.Frame(container, bg="#f8fafc")
+        form = tk.Frame(container, bg=PALETTE["bg_app"])
         form.pack(fill="x")
 
         # Usuário
-        tk.Label(form, text="Usuário", font=("Arial", 10), bg="#f8fafc").pack(
+        tk.Label(form, text="Usuário", font=FONTS["base"], bg=PALETTE["bg_app"]).pack(
             anchor="w"
         )
-        self.username_entry = tk.Entry(
-            form, textvariable=self.username_var, font=("Arial", 11), relief="solid", bd=1
+        self.username_entry = ttk.Entry(
+            form, textvariable=self.username_var, font=FONTS["base"],
         )
         self.username_entry.pack(fill="x", ipady=6, pady=(2, 12))
 
         # Senha
-        tk.Label(form, text="Senha", font=("Arial", 10), bg="#f8fafc").pack(anchor="w")
-        self.password_entry = tk.Entry(
+        tk.Label(form, text="Senha", font=FONTS["base"], bg=PALETTE["bg_app"]).pack(anchor="w")
+        self.password_entry = ttk.Entry(
             form,
             textvariable=self.password_var,
-            font=("Arial", 11),
-            relief="solid",
-            bd=1,
+            font=FONTS["base"],
             show="*",
         )
         self.password_entry.pack(fill="x", ipady=6, pady=(2, 4))
@@ -84,33 +89,21 @@ class LoginWindow:
         self.window.bind("<Return>", lambda _e: self._attempt_login())
 
         # Ações
-        actions = tk.Frame(container, bg="#f8fafc")
+        actions = tk.Frame(container, bg=PALETTE["bg_app"]) 
         actions.pack(fill="x", pady=(12, 0))
 
-        login_btn = tk.Button(
+        login_btn = ttk.Button(
             actions,
             text="Entrar",
-            font=("Arial", 10),
-            bg="#3b82f6",
-            fg="white",
-            relief="flat",
-            cursor="hand2",
-            padx=16,
-            pady=8,
+            style="Primary.TButton",
             command=self._attempt_login,
         )
         login_btn.pack(side="left")
 
-        quick_btn = tk.Button(
+        quick_btn = ttk.Button(
             actions,
             text="Login rápido (admin)",
-            font=("Arial", 10),
-            bg="#10b981",
-            fg="white",
-            relief="flat",
-            cursor="hand2",
-            padx=16,
-            pady=8,
+            style="Success.TButton",
             command=self._quick_login_admin,
         )
         quick_btn.pack(side="right")
@@ -118,8 +111,8 @@ class LoginWindow:
         helper = tk.Label(
             container,
             text="Padrão: admin / admin123",
-            font=("Arial", 9),
-            bg="#f8fafc",
+            font=FONTS["base"],
+            bg=PALETTE["bg_app"],
             fg="#64748b",
         )
         helper.pack(anchor="w", pady=(12, 0))
