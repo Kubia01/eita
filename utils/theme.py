@@ -227,16 +227,17 @@ def apply_theme(root: tk.Misc) -> None:
         # Buttons intended to be used on dark headers (white text, stronger outline)
         style.configure(
             "SecondaryOnDark.TButton",
-            background="#1e293b",  # Darker background for better contrast
+            background="#000000",  # Black background for maximum contrast
             foreground="#ffffff",
             bordercolor="#ffffff",
-            focusthickness=2,
+            focusthickness=3,
             focuscolor="#ffffff",
-            padding=(14, 8),
+            padding=(16, 10),
+            font=FONTS["base_bold"],  # Use bold font for better visibility
         )
         style.map(
             "SecondaryOnDark.TButton",
-            background=[("active", "#0854a0"), ("pressed", "#0f4c75")],
+            background=[("active", "#1e40af"), ("pressed", "#1e3a8a")],
             foreground=[("disabled", "#e5e7eb")],
         )
     except Exception:

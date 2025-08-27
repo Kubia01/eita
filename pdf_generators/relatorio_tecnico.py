@@ -98,18 +98,41 @@ class RelatorioPDF(FPDF):
         self.set_draw_color(70, 70, 70)  # Cor cinza escura para bordas
         self.rect(5, 5, 200, 287)  # A4: 210x297, então 5mm de margem
         
-        # Linha de separação no topo
-        self.set_draw_color(*self.dark_blue)
-        self.set_line_width(0.8)
-        self.line(10, 15, 200, 15)
-        
-        # Posicionamento do conteúdo
-        try:
-            self.set_top_margin(20)
-        except Exception:
-            pass
-        if self.get_y() < 20:
-            self.set_y(20)
+        # Adicionar logo apenas na primeira página
+        if self.page_no() == 1:
+            try:
+                logo_path = "logo.jpg"
+                if os.path.exists(logo_path):
+                    # Adicionar logo centralizado no topo
+                    with Image.open(logo_path) as img:
+                        img_width, img_height = img.size
+                        # Redimensionar para caber na largura da página
+                        max_width = 80
+                        ratio = max_width / img_width
+                        new_width = img_width * ratio
+                        new_height = img_height * ratio
+                        
+                        x_pos = (210 - new_width) / 2
+                        self.image(logo_path, x=x_pos, y=10, w=new_width, h=new_height)
+                        
+                        # Ajustar posicionamento do conteúdo após o logo
+                        self.set_y(10 + new_height + 10)
+            except Exception:
+                # Se der erro, continuar sem logo
+                self.set_y(20)
+        else:
+            # Linha de separação no topo para outras páginas
+            self.set_draw_color(*self.dark_blue)
+            self.set_line_width(0.8)
+            self.line(10, 15, 200, 15)
+            
+            # Posicionamento do conteúdo
+            try:
+                self.set_top_margin(20)
+            except Exception:
+                pass
+            if self.get_y() < 20:
+                self.set_y(20)
         
         self.first_page = False
         self.set_text_color(0, 0, 0)  # Resetar cor do texto
@@ -560,10 +583,6 @@ def gerar_pdf_relatorio(relatorio_id, db_name):
         # Configurar dados para cabeçalho
         pdf.numero_relatorio = get_value("numero_relatorio")
         pdf.data_relatorio = format_date(get_value("data_criacao"))
-        
-        # Adicionar capa personalizada com logo
-        cliente_data = [get_value("nome"), get_value("nome_fantasia"), get_value("cnpj")]
-        pdf.add_custom_cover(relatorio_data, cliente_data)
         
         # Iniciar com o conteúdo principal
         pdf.add_page()
