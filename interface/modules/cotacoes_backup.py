@@ -239,9 +239,7 @@ class CotacoesModule(BaseModule):
 		self.cliente_combo.pack(side="left", fill="x", expand=True)
 		self.cliente_combo.bind("<<ComboboxSelected>>", self.on_cliente_selected)
 		
-		# Botão para buscar/atualizar clientes
-		refresh_clientes_btn = self.create_button(cliente_frame, "🔄", self.refresh_clientes, bg='#10b981')
-		refresh_clientes_btn.pack(side="right", padx=(5, 0))
+		# Refresh button removed
 		
 		row += 1
 		# Contato do Cliente
