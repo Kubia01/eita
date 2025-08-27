@@ -289,39 +289,10 @@ def gerar_pdf_cotacao_nova(cotacao_id, db_name, current_user=None, contato_nome=
         # ===============
         pdf.add_page()
 
-        # Fundo fixo para capa
-        if (tipo_cotacao or '').lower() in ('locação', 'locacao'):
-            # Locação: sempre usar caploc.jpg
-            capa_loc_path = os.path.join(os.path.dirname(__file__), '..', 'caploc.jpg')
-            if os.path.exists(capa_loc_path):
-                pdf.image(capa_loc_path, x=0, y=0, w=210, h=297)
-        else:
-            # Compra: sempre usar imgfundo.jpg como fundo fixo
-            fundo_padrao = os.path.join(os.path.dirname(__file__), '..', 'imgfundo.jpg')
-            if os.path.exists(fundo_padrao):
-                pdf.image(fundo_padrao, x=0, y=0, w=210, h=297)
-
-        # Template personalizado do usuário sobre o fundo (apenas Compra)
-        if not ((tipo_cotacao or '').lower() in ('locação', 'locacao')):
-            template_jpeg_path = None
-            c.execute("SELECT template_personalizado, template_image_path FROM usuarios WHERE username = ?", (responsavel_username,))
-            tu = c.fetchone()
-            if tu and tu[0] and tu[1] and os.path.exists(tu[1]):
-                template_jpeg_path = tu[1]
-            else:
-                # fallback para mapeamento estático
-                template_jpeg_path = obter_template_capa_jpeg(responsavel_username)
-
-            if template_jpeg_path and os.path.exists(template_jpeg_path):
-                # Sobrepor template reduzido no centro sem cobrir todo o fundo
-                try:
-                    capa_width = 120
-                    capa_height = 120
-                    x_pos = (210 - capa_width) / 2
-                    y_pos = 105
-                    pdf.image(template_jpeg_path, x=x_pos, y=y_pos, w=capa_width, h=capa_height)
-                except Exception:
-                    pass
+        # Fundo fixo para capa: usar sempre caploc.jpg (padrão unificado)
+        capa_path = os.path.join(os.path.dirname(__file__), '..', 'caploc.jpg')
+        if os.path.exists(capa_path):
+            pdf.image(capa_path, x=0, y=0, w=210, h=297)
         # Não exibir nenhum texto na capa
         pdf.set_text_color(0, 0, 0)
 

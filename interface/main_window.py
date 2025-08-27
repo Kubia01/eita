@@ -159,12 +159,12 @@ class MainWindow:
             self.produtos_module = add_module("📦 Produtos", "interface.modules.produtos", "ProdutosModule")
         # Compras (Cotações de compra)
         if self.has_access('cotacoes'):
-            self.cotacoes_module = add_module("💰 Compras", "interface.modules.cotacoes", "CotacoesModule")
+            self.cotacoes_module = add_module("💼 Serviços", "interface.modules.cotacoes", "CotacoesModule")
         # Locações (aba separada - módulo independente)
         if self.has_access('relatorios') or self.has_access('cotacoes'):
             # manter lógica de locações na permissão de cotações/relatórios se necessário, ou crie chave própria
             if self.has_access('relatorios') or self.has_access('cotacoes'):
-                self.locacoes_module = add_module("📄 Locações", "interface.modules.locacoes_full", "LocacoesModule")
+                self.locacoes_module = add_module("📄 Locação", "interface.modules.locacoes_full", "LocacoesModule")
         # Relatórios
         if self.has_access('relatorios'):
             self.relatorios_module = add_module("📋 Relatórios", "interface.modules.relatorios", "RelatoriosModule")
@@ -187,8 +187,8 @@ class MainWindow:
             '📊 Dashboard': 'dashboard',
             '👥 Clientes': 'clientes',
             '📦 Produtos': 'produtos',
-            '💰 Compras': 'cotacoes',
-            '📄 Locações': 'relatorios',
+            '💼 Serviços': 'cotacoes',
+            '📄 Locação': 'relatorios',
             '📋 Relatórios': 'relatorios',
             '👤 Usuários': 'usuarios',
             '🔐 Permissões': 'permissoes',

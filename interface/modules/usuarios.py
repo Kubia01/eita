@@ -58,8 +58,9 @@ class UsuariosModule(BaseModule):
         self.nome_completo_var = tk.StringVar()
         self.email_var = tk.StringVar()
         self.telefone_var = tk.StringVar()
-        self.template_personalizado_var = tk.BooleanVar()
-        self.template_image_path_var = tk.StringVar()
+        # Removido template personalizado por usuário
+        self.template_personalizado_var = tk.BooleanVar(value=False)
+        self.template_image_path_var = tk.StringVar(value="")
         
         row = 0
         
@@ -104,35 +105,8 @@ class UsuariosModule(BaseModule):
         telefone_entry.bind('<FocusOut>', self.format_telefone)
         row += 1
         
-        # Template Personalizado
-        tk.Label(fields_frame, text="Template Personalizado:", font=('Arial', 10, 'bold'), bg='white').grid(row=row, column=0, sticky="w", pady=5)
-        template_frame = tk.Frame(fields_frame, bg='white')
-        template_frame.grid(row=row, column=1, sticky="ew", padx=(10, 0), pady=5)
-        
-        template_check = tk.Checkbutton(template_frame, text="Ativar template personalizado para PDFs", 
-                                       variable=self.template_personalizado_var, bg='white', font=('Arial', 10),
-                                       command=self.toggle_template_upload)
-        template_check.pack(anchor="w")
-        
-        # Frame para upload de imagem
-        self.upload_frame = tk.Frame(template_frame, bg='white')
-        self.upload_frame.pack(fill="x", pady=(5, 0))
-        
-        tk.Label(self.upload_frame, text="Imagem do Template:", font=('Arial', 9), bg='white').pack(anchor="w")
-        
-        upload_controls = tk.Frame(self.upload_frame, bg='white')
-        upload_controls.pack(fill="x")
-        
-        self.template_path_entry = tk.Entry(upload_controls, textvariable=self.template_image_path_var, 
-                                           font=('Arial', 9), width=40, state='readonly')
-        self.template_path_entry.pack(side="left", fill="x", expand=True)
-        
-        self.browse_btn = tk.Button(upload_controls, text="📁 Procurar", command=self.browse_template_image,
-                                   bg='#3b82f6', fg='white', font=('Arial', 8))
-        self.browse_btn.pack(side="right", padx=(5, 0))
-        
-        # Inicialmente oculto
-        self.upload_frame.pack_forget()
+        # Template personalizado removido da UI
+        # (mantido apenas como variáveis desativadas para compatibilidade de dados)
         
         fields_frame.grid_columnconfigure(1, weight=1)
         
@@ -140,7 +114,7 @@ class UsuariosModule(BaseModule):
         buttons_frame = tk.Frame(content_frame, bg='white')
         buttons_frame.pack(fill="x", pady=(20, 0))
         
-        novo_btn = self.create_button(buttons_frame, "Novo Usuário", self.novo_usuario, bg='#e2e8f0', fg='#475569')
+        novo_btn = self.create_button(buttons_frame, "Novo Usuário", self.novo_usuario)
         novo_btn.pack(side="left", padx=(0, 10))
         
         salvar_btn = self.create_button(buttons_frame, "Salvar Usuário", self.salvar_usuario)
@@ -263,21 +237,19 @@ class UsuariosModule(BaseModule):
                 # Atualizar usuário existente (sem senha)
                 c.execute("""
                     UPDATE usuarios SET username = ?, role = ?, nome_completo = ?, 
-                                      email = ?, telefone = ?, template_personalizado = ?, template_image_path = ?
+                                      email = ?, telefone = ?
                     WHERE id = ?
                 """, (username, role, self.nome_completo_var.get().strip(),
                      email if email else None, self.telefone_var.get().strip(),
-                     self.template_personalizado_var.get(), self.template_image_path_var.get().strip() or None,
                      self.current_usuario_id))
             else:
                 # Novo usuário
                 password_hash = hashlib.sha256(password.encode()).hexdigest()
                 c.execute("""
-                    INSERT INTO usuarios (username, password, role, nome_completo, email, telefone, template_personalizado, template_image_path)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO usuarios (username, password, role, nome_completo, email, telefone)
+                    VALUES (?, ?, ?, ?, ?, ?)
                 """, (username, password_hash, role, self.nome_completo_var.get().strip(),
-                     email if email else None, self.telefone_var.get().strip(), 
-                     self.template_personalizado_var.get(), self.template_image_path_var.get().strip() or None))
+                     email if email else None, self.telefone_var.get().strip()))
                 self.current_usuario_id = c.lastrowid
             
             conn.commit()
@@ -409,13 +381,9 @@ class UsuariosModule(BaseModule):
             self.nome_completo_var.set(usuario[4] or "")  # nome_completo
             self.email_var.set(usuario[5] or "")  # email
             self.telefone_var.set(format_phone(usuario[6]) if usuario[6] else "")  # telefone
-            # template_personalizado está na posição 7 (após telefone)
-            self.template_personalizado_var.set(bool(usuario[7]) if len(usuario) > 7 and usuario[7] is not None else False)
-            # template_image_path está na posição 8
-            self.template_image_path_var.set(usuario[8] if len(usuario) > 8 and usuario[8] else "")
-            
-            # Mostrar/ocultar upload baseado no checkbox
-            self.toggle_template_upload()
+            # Removido: template personalizado
+            self.template_personalizado_var.set(False)
+            self.template_image_path_var.set("")
             
         except sqlite3.Error as e:
             self.show_error(f"Erro ao carregar usuário: {e}")
