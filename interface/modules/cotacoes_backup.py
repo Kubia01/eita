@@ -796,13 +796,21 @@ class CotacoesModule(BaseModule):
 		c = conn.cursor()
 		
 		try:
-			c.execute("SELECT valor_unitario, descricao FROM produtos WHERE nome = ? AND tipo = ?", (nome, tipo))
+			c.execute("SELECT id, valor_unitario, descricao FROM produtos WHERE nome = ? AND tipo = ?", (nome, tipo))
 			result = c.fetchone()
 			if result:
-				valor, descricao = result
+				produto_id, valor, descricao = result
 				self.item_valor_var.set(f"{valor:.2f}")
 				if descricao:
 					self.item_desc_var.set(descricao)
+				
+				# Se for um Kit, preencher automaticamente a relação de peças
+				if tipo == "Kit":
+					self.preencher_relacao_pecas_kit(produto_id)
+				else:
+					# Se não for Kit, limpar o campo de relação de peças
+					if hasattr(self, 'relacao_pecas_text'):
+						self.relacao_pecas_text.delete(1.0, tk.END)
 		except sqlite3.Error as e:
 			self.show_error(f"Erro ao buscar dados do produto: {e}")
 		finally:
@@ -1776,3 +1784,34 @@ class CotacoesModule(BaseModule):
 		elif event_type == 'produto_created':
 			self.refresh_produtos()
 			print("Lista de produtos atualizada automaticamente!")
+			
+	def preencher_relacao_pecas_kit(self, kit_id):
+		"""Preenche automaticamente a relação de peças quando um kit é selecionado"""
+		conn = sqlite3.connect(DB_NAME)
+		c = conn.cursor()
+		
+		try:
+			# Buscar componentes do kit
+			c.execute("""
+				SELECT p.nome 
+				FROM kit_items ki
+				JOIN produtos p ON ki.produto_id = p.id
+				WHERE ki.kit_id = ?
+				ORDER BY p.nome
+			""", (kit_id,))
+			
+			componentes = c.fetchall()
+			
+			if componentes:
+				# Formatar no formato solicitado: * Nome do componente
+				relacao_pecas = "\n".join([f"* {componente[0]}" for componente in componentes])
+				
+				# Preencher o campo de relação de peças
+				if hasattr(self, 'relacao_pecas_text'):
+					self.relacao_pecas_text.delete(1.0, tk.END)
+					self.relacao_pecas_text.insert(1.0, relacao_pecas)
+				
+		except sqlite3.Error as e:
+			self.show_error(f"Erro ao carregar componentes do kit: {e}")
+		finally:
+			conn.close()
