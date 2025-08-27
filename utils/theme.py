@@ -169,6 +169,22 @@ def apply_theme(root: tk.Misc) -> None:
             foreground=PALETTE["text_secondary"],
             background=PALETTE["bg_app"],
         )
+
+        # Buttons intended to be used on dark headers (white text, light outline)
+        style.configure(
+            "SecondaryOnDark.TButton",
+            background=PALETTE["bg_header"],
+            foreground="#ffffff",
+            bordercolor="#dbeafe",
+            focusthickness=2,
+            focuscolor="#dbeafe",
+            padding=(14, 8),
+        )
+        style.map(
+            "SecondaryOnDark.TButton",
+            background=[("active", "#0a5eb8")],
+            foreground=[("disabled", "#cbd5e1")],
+        )
     except Exception:
         # Fail-safe: never break the app if styling fails
         pass
