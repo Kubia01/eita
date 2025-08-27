@@ -427,8 +427,8 @@ class CotacoesModule(BaseModule):
 		
 		self.tipo_combo = ttk.Combobox(compra_grid, textvariable=self.item_tipo_var, 
 								  values=["Produto", "Serviço", "Kit"], 
-								  width=10, state="readonly")
-		self.tipo_combo.grid(row=0, column=1, padx=5)
+								  width=20, state="readonly")
+		self.tipo_combo.grid(row=0, column=1, padx=(2, 5), sticky="w")
 		self.tipo_combo.bind("<<ComboboxSelected>>", self.on_tipo_changed)
 		
 		tk.Label(compra_grid, text="Qtd:", font=("Arial", 10, "bold"), bg="white").grid(row=0, column=2, padx=5, sticky="w")

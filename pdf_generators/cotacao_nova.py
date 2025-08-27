@@ -339,20 +339,15 @@ def gerar_pdf_cotacao_nova(cotacao_id, db_name, current_user=None, contato_nome=
         # Não exibir nenhum texto na capa
         pdf.set_text_color(0, 0, 0)
 
-        # PÁGINA 2: APRESENTAÇÃO COM LOGO E DADOS (COMO ESTAVA ANTES)
-        # ===========================================================
+        # PÁGINA 2: APRESENTAÇÃO COM DADOS (SEM LOGO)
+        # ============================================
         pdf.add_page()
         # (Sem fundo padrão nas páginas subsequentes)
         
-        # Logo centralizado (como estava antes)
-        logo_path = os.path.join(os.path.dirname(__file__), '..', 'assets', 'logos', 'world_comp_brasil.jpg')
-        if os.path.exists(logo_path):
-            logo_height = 30
-            logo_width = logo_height * 1.5
-            pdf.image(logo_path, x=(210 - logo_width) / 2, y=20, w=logo_width)
+        # Logo removido conforme solicitado
         
-        # Posição para dados do cliente e empresa
-        pdf.set_y(80)  # Aumentado para 80 para dar espaço ao logo maior
+        # Posição para dados do cliente e empresa (ajustado sem logo)
+        pdf.set_y(40)  # Ajustado para posição sem logo
         
         # Dados do cliente (lado esquerdo) e empresa (lado direito)
         pdf.set_font("Arial", 'B', 10)  # Fonte menor para acomodar mais texto
