@@ -98,37 +98,21 @@ class RelatorioPDF(FPDF):
         self.set_draw_color(70, 70, 70)  # Cor cinza escura para bordas
         self.rect(5, 5, 200, 287)  # A4: 210x297, então 5mm de margem
         
-        # Background do cabeçalho
-        self.set_fill_color(*self.light_gray)
-        self.rect(8, 8, 194, 25, 'F')
+        # Cabeçalho com imagem fixa (substitui qualquer conteúdo dinâmico)
+        try:
+            header_img = os.path.join(os.path.dirname(__file__), '..', 'cabeçalho.jpeg')
+            if not os.path.exists(header_img):
+                header_img = os.path.join(os.path.dirname(__file__), '..', 'cabecalho.jpeg')
+            if os.path.exists(header_img):
+                self.image(header_img, x=10, y=8, w=190)
+        except Exception:
+            pass
         
-        # Cabeçalho corporativo
-        self.set_text_color(*self.dark_blue)
-        self.set_pdf_font('B', 12)
-        self.set_y(12)
-        self.cell(0, 6, self.clean_pdf_text(self.dados_filial.get('nome', 'WORLD COMP DO BRASIL COMPRESSORES LTDA')), 0, 1, 'C')
-        
-        self.set_pdf_font('B', 10)
-        self.cell(0, 5, self.clean_pdf_text("ORDEM DE SERVIÇO DE CAMPO SIMPLIFICADA"), 0, 1, 'C')
-        
-        self.set_pdf_font('', 9)
-        self.cell(0, 4, self.clean_pdf_text(f"RELATÓRIO Nº: {getattr(self, 'numero_relatorio', 'N/A')} | DATA: {getattr(self, 'data_relatorio', 'N/A')}"), 0, 1, 'C')
-        
-        # Linha de separação
+        # Linha de separação e posicionamento após header
         self.set_draw_color(*self.dark_blue)
         self.set_line_width(0.8)
         self.line(10, 35, 200, 35)
-        
-        # Logo centralizado apenas na primeira página
-        if self.first_page:
-            logo_path = "logo.jpg"
-            if os.path.exists(logo_path):
-                logo_height = 20
-                logo_width = logo_height * 1.5
-                self.image(logo_path, x=(210 - logo_width) / 2, y=40, w=logo_width)
-            self.set_y(70)
-        else:
-            self.set_y(45)
+        self.set_y(45)
         
         self.first_page = False
         self.set_text_color(0, 0, 0)  # Resetar cor do texto
