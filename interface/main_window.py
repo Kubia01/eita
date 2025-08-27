@@ -65,11 +65,22 @@ class MainWindow:
     def create_main_ui(self):
         # Frame superior com menu
         self.create_header()
-        
-        # Notebook para abas
-        self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(fill="both", expand=True, padx=10, pady=(0, 10))
-        
+
+        # Container com navegação lateral (vertical) + área principal (notebook)
+        container = tk.Frame(self.root, bg=PALETTE["bg_app"]) 
+        container.pack(fill="both", expand=True)
+        container.grid_columnconfigure(0, minsize=220)
+        container.grid_columnconfigure(1, weight=1)
+        container.grid_rowconfigure(0, weight=1)
+
+        # Navegação lateral
+        self.side_nav = tk.Frame(container, bg="#ffffff", highlightthickness=1, highlightbackground=PALETTE["border"]) 
+        self.side_nav.grid(row=0, column=0, sticky="nswe", padx=(10, 6), pady=(10, 10))
+
+        # Área de conteúdo com notebook (mantém a lógica e instância dos módulos)
+        self.notebook = ttk.Notebook(container)
+        self.notebook.grid(row=0, column=1, sticky="nswe", padx=(6, 10), pady=(10, 10))
+
         # Criar módulos
         self._load_user_permissions()
         self.create_modules()
@@ -155,6 +166,9 @@ class MainWindow:
         if self.has_access('permissoes'):
             self.permissoes_module = add_module("🔐 Permissões", "interface.modules.permissoes", "PermissoesModule")
 
+        # Construir navegação lateral com botões que selecionam as abas do notebook
+        self._build_side_nav()
+
     def _tab_text_to_key(self, tab_text: str) -> str:
         mapping = {
             '📊 Dashboard': 'dashboard',
@@ -167,6 +181,22 @@ class MainWindow:
             '🔐 Permissões': 'permissoes',
         }
         return mapping.get(tab_text, '')
+
+    def _build_side_nav(self):
+        """Cria botões verticais para navegar entre as abas do notebook."""
+        try:
+            tabs = self.notebook.tabs()
+            for idx, tab_id in enumerate(tabs):
+                text = self.notebook.tab(tab_id, option='text')
+                btn = ttk.Button(
+                    self.side_nav,
+                    text=text,
+                    style='Secondary.TButton',
+                    command=lambda i=idx: self.notebook.select(i)
+                )
+                btn.pack(fill='x', padx=10, pady=6)
+        except Exception as e:
+            print(f"Aviso: falha ao construir navegação lateral: {e}")
 
     def _load_user_permissions(self):
         """Carrega as permissões do usuário corrente em self.user_permissions"""
