@@ -109,8 +109,9 @@ class PDFCotacao(FPDF):
             if not os.path.exists(header_img):
                 header_img = os.path.join(os.path.dirname(__file__), '..', 'cabecalho.jpeg')
             if os.path.exists(header_img):
-                # Largura total entre bordas (200mm), altura do cabeçalho ~30mm
-                self.image(header_img, x=5, y=5, w=200, h=30)
+                # Posicionar a imagem dentro da borda (sem cobrir a linha):
+                # deslocar 0,5mm de cada lado e usar altura ligeiramente menor
+                self.image(header_img, x=5.5, y=5.5, w=199, h=29)
         except Exception:
             pass
 
