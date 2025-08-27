@@ -22,7 +22,7 @@ class MainWindow:
         
     def setup_main_window(self):
         """Configurar janela principal"""
-        self.root.title(f"Sistema CRM Compressores - {self.nome_completo} ({self.role})")
+        self.root.title(f"Proposta Comercial - {self.nome_completo} ({self.role})")
         self.root.geometry("1400x800")
         try:
             apply_theme(self.root)
