@@ -1,16 +1,14 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import importlib
-from .modules import (
-    DashboardModule,
-    ClientesModule,
-    ProdutosModule,
-    CotacoesModule,
-    LocacoesModule,
-    RelatoriosModule,
-    UsuariosModule,
-    PermissoesModule,
-)
+from .modules.dashboard import DashboardModule
+from .modules.clientes import ClientesModule
+from .modules.produtos import ProdutosModule
+from .modules.cotacoes import CotacoesModule
+from .modules.locacoes_full import LocacoesModule
+from .modules.relatorios import RelatoriosModule
+from .modules.usuarios import UsuariosModule
+from .modules.permissoes import PermissoesModule
 import sqlite3
 from database import DB_NAME
 from utils.theme import apply_theme, style_header_frame, PALETTE, FONTS
