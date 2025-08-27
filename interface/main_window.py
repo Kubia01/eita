@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import sqlite3
 from database import DB_NAME
+from utils.theme import apply_theme, style_header_frame, PALETTE, FONTS
 
 class MainWindow:
     def __init__(self, root, user_id, role, nome_completo):
@@ -23,7 +24,11 @@ class MainWindow:
         """Configurar janela principal"""
         self.root.title(f"Sistema CRM Compressores - {self.nome_completo} ({self.role})")
         self.root.geometry("1400x800")
-        self.root.configure(bg='#f8fafc')
+        try:
+            apply_theme(self.root)
+        except Exception:
+            pass
+        self.root.configure(bg=PALETTE["bg_app"]) 
         
         # Centralizar janela
         self.center_window()
@@ -71,39 +76,35 @@ class MainWindow:
         
     def create_header(self):
         """Criar cabeçalho com informações do usuário e botões"""
-        header_frame = tk.Frame(self.root, bg='#1e293b', height=60)
+        header_frame = tk.Frame(self.root, bg=PALETTE["bg_header"], height=60)
         header_frame.pack(fill="x")
         header_frame.pack_propagate(False)
         
         # Frame esquerdo - título
-        left_frame = tk.Frame(header_frame, bg='#1e293b')
+        left_frame = tk.Frame(header_frame, bg=PALETTE["bg_header"]) 
         left_frame.pack(side="left", fill="y", padx=20, pady=10)
         
         title_label = tk.Label(left_frame, 
                               text="Sistema CRM Compressores",
-                              font=('Arial', 16, 'bold'),
-                              bg='#1e293b',
+                              font=FONTS["title"],
+                              bg=PALETTE["bg_header"],
                               fg='white')
         title_label.pack(anchor="w")
         
         # Frame direito - informações do usuário e logout
-        right_frame = tk.Frame(header_frame, bg='#1e293b')
+        right_frame = tk.Frame(header_frame, bg=PALETTE["bg_header"]) 
         right_frame.pack(side="right", fill="y", padx=20, pady=10)
         
         user_label = tk.Label(right_frame,
                              text=f"Usuário: {self.nome_completo} ({self.role})",
-                             font=('Arial', 10),
-                             bg='#1e293b',
+                             font=FONTS["base"],
+                             bg=PALETTE["bg_header"],
                              fg='#e2e8f0')
         user_label.pack(anchor="e")
         
-        logout_btn = tk.Button(right_frame,
+        logout_btn = ttk.Button(right_frame,
                               text="Logout",
-                              font=('Arial', 9),
-                              bg='#ef4444',
-                              fg='white',
-                              relief='flat',
-                              cursor='hand2',
+                              style='Danger.TButton',
                               command=self.logout)
         logout_btn.pack(anchor="e", pady=(5, 0))
         
