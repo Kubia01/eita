@@ -122,22 +122,16 @@ def apply_theme(root: tk.Misc) -> None:
             padding=(8, 6),
         )
 
-        # Notebook (tabs)
+        # Notebook (tabs) — hide tabs to rely on side navigation
         style.configure(
             "TNotebook",
             background=PALETTE["bg_app"],
             borderwidth=0,
         )
-        style.configure(
-            "TNotebook.Tab",
-            font=FONTS["base"],
-            padding=(16, 10),
-        )
-        style.map(
-            "TNotebook.Tab",
-            background=[("selected", "#e2e8f0")],
-            foreground=[("selected", PALETTE["text_primary"])],
-        )
+        try:
+            style.layout("TNotebook.Tab", [])
+        except Exception:
+            pass
 
         # Treeview
         style.configure(
@@ -170,20 +164,20 @@ def apply_theme(root: tk.Misc) -> None:
             background=PALETTE["bg_app"],
         )
 
-        # Buttons intended to be used on dark headers (white text, light outline)
+        # Buttons intended to be used on dark headers (white text, stronger outline)
         style.configure(
             "SecondaryOnDark.TButton",
             background=PALETTE["bg_header"],
             foreground="#ffffff",
-            bordercolor="#dbeafe",
+            bordercolor="#ffffff",
             focusthickness=2,
-            focuscolor="#dbeafe",
+            focuscolor="#ffffff",
             padding=(14, 8),
         )
         style.map(
             "SecondaryOnDark.TButton",
-            background=[("active", "#0a5eb8")],
-            foreground=[("disabled", "#cbd5e1")],
+            background=[("active", "#0854a0")],
+            foreground=[("disabled", "#e5e7eb")],
         )
     except Exception:
         # Fail-safe: never break the app if styling fails
