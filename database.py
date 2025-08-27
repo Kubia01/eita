@@ -348,9 +348,8 @@ def criar_usuario_master():
 			""", ("admin", password_hash, "admin", "Administrador", "admin@sistema.com", ""))
 			
 			conn.commit()
-			print("Usuário master criado: admin / admin123")
 		else:
-			print("Usuário admin já existe no sistema")
+			pass  # Usuário admin já existe
 			
 	except sqlite3.Error as e:
 		print(f"Erro ao criar usuário master: {e}")
