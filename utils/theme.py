@@ -121,6 +121,27 @@ def apply_theme(root: tk.Misc) -> None:
             darkcolor=PALETTE["border"],
             padding=(8, 6),
         )
+        # Combobox (drop-downs)
+        try:
+            style.configure(
+                "TCombobox",
+                fieldbackground="#ffffff",
+                background="#ffffff",
+                foreground=PALETTE["text_primary"],
+                arrowcolor=PALETTE["text_secondary"],
+                bordercolor=PALETTE["border"],
+                lightcolor=PALETTE["focus"],
+                darkcolor=PALETTE["border"],
+                padding=(6, 4),
+            )
+            style.map(
+                "TCombobox",
+                fieldbackground=[("readonly", "#ffffff"), ("focus", "#ffffff")],
+                background=[("active", "#ffffff")],
+                bordercolor=[("focus", PALETTE["focus"])],
+            )
+        except Exception:
+            pass
 
         # Notebook (tabs)
         style.configure(
