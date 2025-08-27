@@ -78,7 +78,8 @@ class MainWindow:
         self.side_nav.grid(row=0, column=0, sticky="nswe", padx=(10, 6), pady=(10, 10))
 
         # Área de conteúdo com notebook (mantém a lógica e instância dos módulos)
-        self.notebook = ttk.Notebook(container)
+        # Main content notebook with hidden tabs (style handled by theme)
+        self.notebook = ttk.Notebook(container, style='Main.TNotebook')
         self.notebook.grid(row=0, column=1, sticky="nswe", padx=(6, 10), pady=(10, 10))
 
         # Criar módulos

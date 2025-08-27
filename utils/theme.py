@@ -122,18 +122,31 @@ def apply_theme(root: tk.Misc) -> None:
             padding=(8, 6),
         )
 
-        # Notebook (tabs) — hide tabs to rely on side navigation
+        # Notebook (tabs)
         style.configure(
             "TNotebook",
             background=PALETTE["bg_app"],
             borderwidth=0,
         )
+        # Keep default tabs visible for module notebooks
+        style.configure(
+            "TNotebook.Tab",
+            font=FONTS["base"],
+            padding=(14, 8),
+            background="#ffffff",
+        )
+        style.map(
+            "TNotebook.Tab",
+            background=[("selected", "#eef4fb")],
+            foreground=[("selected", PALETTE["text_primary"])],
+        )
+        # Create a special style for the main app notebook with hidden tabs
         try:
-            style.layout("TNotebook.Tab", [])
+            style.layout("Main.TNotebook.Tab", [])
         except Exception:
             pass
 
-        # Treeview
+        # Treeview (tables)
         style.configure(
             "Treeview",
             background="#ffffff",
@@ -145,7 +158,33 @@ def apply_theme(root: tk.Misc) -> None:
         style.configure(
             "Treeview.Heading",
             font=FONTS["base_bold"],
+            background="#ffffff",
+            foreground=PALETTE["text_primary"],
+            bordercolor=PALETTE["border"],
         )
+        style.map(
+            "Treeview.Heading",
+            background=[("active", "#eef4fb")],
+        )
+
+        # Scrollbars (clean, light)
+        try:
+            style.configure(
+                "Vertical.TScrollbar",
+                background="#e9eef5",
+                troughcolor="#ffffff",
+                arrowcolor=PALETTE["text_secondary"],
+                bordercolor=PALETTE["border"],
+            )
+            style.configure(
+                "Horizontal.TScrollbar",
+                background="#e9eef5",
+                troughcolor="#ffffff",
+                arrowcolor=PALETTE["text_secondary"],
+                bordercolor=PALETTE["border"],
+            )
+        except Exception:
+            pass
 
         # Header style (used by main window top bar)
         style.configure(
