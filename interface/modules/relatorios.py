@@ -139,7 +139,10 @@ class RelatoriosModule(BaseModule):
 		duplicar_btn.pack(side="left", padx=(0, 10))
 		
 		gerar_pdf_lista_btn = self.create_button(lista_buttons, "Gerar PDF", self.gerar_pdf_selecionado, bg='#10b981')
-		gerar_pdf_lista_btn.pack(side="right")
+		gerar_pdf_lista_btn.pack(side="right", padx=(0, 10))
+		
+		abrir_pdf_lista_btn = self.create_button(lista_buttons, "Abrir PDF", self.abrir_pdf_selecionado, bg='#3b82f6')
+		abrir_pdf_lista_btn.pack(side="right")
 		
 		excluir_btn = self.create_button(lista_buttons, "Excluir", self.excluir_relatorio, bg='#dc2626')
 		excluir_btn.pack(side="right", padx=(10, 0))
@@ -198,10 +201,10 @@ class RelatoriosModule(BaseModule):
 		
 		# Cliente com busca reativa
 		tk.Label(fields_frame, text="Cliente *:", 
-				 font=('Arial', 10, 'bold'), bg='white').grid(row=0, column=0, sticky="w", pady=5)
+				 font=('Arial', 10, 'bold'), bg='white').grid(row=0, column=0, sticky="w", pady=5, padx=(20, 0))
 		
 		cliente_frame = tk.Frame(fields_frame, bg='white')
-		cliente_frame.grid(row=0, column=1, sticky="ew", padx=(10, 0), pady=5)
+		cliente_frame.grid(row=0, column=1, columnspan=3, sticky="ew", padx=(10, 0), pady=5)
 		
 		self.cliente_combo = ttk.Combobox(cliente_frame, textvariable=self.cliente_var, width=40)
 		self.cliente_combo.pack(side="left", fill="x", expand=True)
@@ -209,48 +212,7 @@ class RelatoriosModule(BaseModule):
 		
 		# Refresh button removed
 		
-		# Número do relatório
-		tk.Label(fields_frame, text="Número do Relatório:", 
-				 font=('Arial', 10, 'bold'), bg='white').grid(row=0, column=2, sticky="w", pady=5, padx=(20, 0))
-		self.numero_relatorio_var = tk.StringVar()
-		tk.Entry(fields_frame, textvariable=self.numero_relatorio_var, 
-				 font=('Arial', 10), width=15).grid(row=0, column=3, sticky="w", padx=(10, 0), pady=5)
-		
-		# Data de Criação
-		tk.Label(fields_frame, text="Data de Criação:", 
-				 font=('Arial', 10, 'bold'), bg='white').grid(row=1, column=0, sticky="w", pady=5, padx=(20, 0))
-		self.data_criacao_var = tk.StringVar(value=datetime.now().strftime('%d/%m/%Y'))
-		tk.Entry(fields_frame, textvariable=self.data_criacao_var, 
-				 font=('Arial', 10), width=15).grid(row=1, column=1, sticky="w", padx=(10, 0), pady=5)
-		
-		# Formulário de Serviço
-		tk.Label(fields_frame, text="Formulário de Serviço:", 
-				 font=('Arial', 10, 'bold'), bg='white').grid(row=1, column=2, sticky="w", pady=5)
-		self.formulario_servico_var = tk.StringVar()
-		tk.Entry(fields_frame, textvariable=self.formulario_servico_var, 
-				 font=('Arial', 10), width=30).grid(row=1, column=3, sticky="ew", padx=(10, 0), pady=5)
-		
-		# Tipo de Serviço
-		tk.Label(fields_frame, text="Tipo de Serviço:", 
-				 font=('Arial', 10, 'bold'), bg='white').grid(row=2, column=0, sticky="w", pady=5, padx=(20, 0))
-		self.tipo_servico_var = tk.StringVar()
-		tipo_combo = ttk.Combobox(fields_frame, textvariable=self.tipo_servico_var, 
-								 values=["Manutenção", "Reparo", "Instalação", "Inspeção", "Consultoria"],
-								 width=12)
-		tipo_combo.grid(row=2, column=1, sticky="w", padx=(10, 0), pady=5)
-		
-		# Data de Recebimento
-		tk.Label(fields_frame, text="Data de Recebimento:", 
-				 font=('Arial', 10, 'bold'), bg='white').grid(row=2, column=2, sticky="w", pady=5)
-		self.data_recebimento_var = tk.StringVar()
-		tk.Entry(fields_frame, textvariable=self.data_recebimento_var, 
-				 font=('Arial', 10), width=30).grid(row=2, column=3, sticky="ew", padx=(10, 0), pady=5)
-		
-		# Descrição do Serviço
-		tk.Label(fields_frame, text="Descrição do Serviço:", 
-				 font=('Arial', 10, 'bold'), bg='white').grid(row=3, column=0, sticky="nw", pady=5)
-		self.descricao_text = scrolledtext.ScrolledText(fields_frame, height=3, width=40)
-		self.descricao_text.grid(row=3, column=1, columnspan=3, sticky="ew", padx=(10, 0), pady=5)
+		# Campos removidos da seção de identificação do cliente (mantidos apenas na seção "Dados do Serviço")
 		
 		# Configurar colunas
 		fields_frame.grid_columnconfigure(1, weight=1)
@@ -577,7 +539,10 @@ class RelatoriosModule(BaseModule):
 		salvar_btn.pack(side="left", padx=(0, 10))
 		
 		gerar_pdf_btn = self.create_button(buttons_frame, "Gerar PDF", self.gerar_pdf, bg='#10b981')
-		gerar_pdf_btn.pack(side="right")
+		gerar_pdf_btn.pack(side="right", padx=(0, 10))
+		
+		abrir_pdf_btn = self.create_button(buttons_frame, "Abrir PDF", self.abrir_pdf, bg='#3b82f6')
+		abrir_pdf_btn.pack(side="right")
 		
 	# Lista de relatórios integrada no layout único
 	def refresh_all_data(self):
@@ -1493,3 +1458,69 @@ class RelatoriosModule(BaseModule):
 			# Aqui você pode adicionar lógica adicional quando um cliente é selecionado
 			# Por exemplo, carregar dados específicos do cliente
 			pass
+
+	def abrir_pdf_selecionado(self):
+		"""Abrir PDF do relatório selecionado"""
+		selected = self.relatorios_tree.selection()
+		if not selected:
+			self.show_warning("Selecione um relatório para abrir o PDF.")
+			return
+			
+		# Obter ID do relatório
+		tags = self.relatorios_tree.item(selected[0])['tags']
+		if not tags:
+			return
+			
+		relatorio_id = tags[0]
+		
+		# Primeiro gerar o PDF se não existir
+		gerar_pdf_relatorio = _lazy_gerar_pdf_relatorio()
+		sucesso, resultado = gerar_pdf_relatorio(relatorio_id, DB_NAME)
+		
+		if sucesso:
+			# Abrir o PDF com o aplicativo padrão
+			try:
+				import os
+				import sys
+				if os.name == 'nt':  # Windows
+					os.startfile(resultado)
+				elif sys.platform == 'darwin':  # macOS
+					import subprocess
+					subprocess.Popen(['open', resultado])
+				else:  # Linux
+					import subprocess
+					subprocess.Popen(['xdg-open', resultado])
+			except Exception as e:
+				self.show_error(f"Erro ao abrir PDF: {e}")
+		else:
+			self.show_error(f"Erro ao gerar PDF: {resultado}")
+			
+	def abrir_pdf(self):
+		"""Abrir PDF do relatório atual"""
+		if not self.current_relatorio_id:
+			self.show_warning("Salve o relatório antes de abrir o PDF.")
+			return
+			
+		try:
+			gerar_pdf_relatorio = _lazy_gerar_pdf_relatorio()
+			sucesso, resultado = gerar_pdf_relatorio(self.current_relatorio_id, DB_NAME)
+			
+			if sucesso:
+				# Abrir o PDF com o aplicativo padrão
+				try:
+					import os
+					import sys
+					if os.name == 'nt':  # Windows
+						os.startfile(resultado)
+					elif sys.platform == 'darwin':  # macOS
+						import subprocess
+						subprocess.Popen(['open', resultado])
+					else:  # Linux
+						import subprocess
+						subprocess.Popen(['xdg-open', resultado])
+				except Exception as e:
+					self.show_error(f"Erro ao abrir PDF: {e}")
+			else:
+				self.show_error(f"Erro ao gerar PDF: {resultado}")
+		except Exception as e:
+			self.show_error(f"Erro ao abrir PDF: {e}")

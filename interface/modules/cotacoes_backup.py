@@ -132,7 +132,10 @@ class CotacoesModule(BaseModule):
 		duplicar_btn.pack(side="left", padx=(0, 10))
 		
 		gerar_pdf_lista_btn = self.create_button(lista_buttons, "Gerar PDF", self.gerar_pdf_selecionado, bg='#10b981')
-		gerar_pdf_lista_btn.pack(side="right")
+		gerar_pdf_lista_btn.pack(side="right", padx=(0, 10))
+		
+		abrir_pdf_lista_btn = self.create_button(lista_buttons, "Abrir PDF", self.abrir_pdf_selecionado, bg='#3b82f6')
+		abrir_pdf_lista_btn.pack(side="right")
 		
 		# Dados iniciais
 		self.refresh_all_data()
@@ -897,7 +900,10 @@ class CotacoesModule(BaseModule):
 		salvar_btn.pack(side="left", padx=(0, 10))
 		
 		gerar_pdf_btn = self.create_button(buttons_frame, "Gerar PDF", self.gerar_pdf, bg='#10b981')
-		gerar_pdf_btn.pack(side="right")
+		gerar_pdf_btn.pack(side="right", padx=(0, 10))
+		
+		abrir_pdf_btn = self.create_button(buttons_frame, "Abrir PDF", self.abrir_pdf, bg='#3b82f6')
+		abrir_pdf_btn.pack(side="right")
 		
 	# Lista de cotações integrada no layout único
 	def refresh_all_data(self):
@@ -1499,6 +1505,42 @@ class CotacoesModule(BaseModule):
 		except Exception as e:
 			self.show_error(f"Erro ao gerar PDF: {e}")
 			
+	def abrir_pdf(self):
+		"""Abrir PDF da cotação atual"""
+		if not self.current_cotacao_id:
+			self.show_warning("Salve a cotação primeiro antes de abrir o PDF.")
+			return
+			
+		try:
+			# Obter username do usuário atual para template personalizado
+			current_username = self._get_current_username()
+			sucesso, resultado = gerar_pdf_cotacao_nova(
+				self.current_cotacao_id, 
+				DB_NAME, 
+				current_username, 
+				contato_nome=self.contato_cliente_var.get()
+			)
+			
+			if sucesso:
+				# Abrir o PDF com o aplicativo padrão
+				try:
+					import os
+					import sys
+					if os.name == 'nt':  # Windows
+						os.startfile(resultado)
+					elif sys.platform == 'darwin':  # macOS
+						import subprocess
+						subprocess.Popen(['open', resultado])
+					else:  # Linux
+						import subprocess
+						subprocess.Popen(['xdg-open', resultado])
+				except Exception as e:
+					self.show_error(f"Erro ao abrir PDF: {e}")
+			else:
+				self.show_error(f"Erro ao gerar PDF: {resultado}")
+		except Exception as e:
+			self.show_error(f"Erro ao abrir PDF: {e}")
+			
 	def _get_current_username(self):
 		"""Obter o username do usuário atual"""
 		try:
@@ -1815,3 +1857,38 @@ class CotacoesModule(BaseModule):
 			self.show_error(f"Erro ao carregar componentes do kit: {e}")
 		finally:
 			conn.close()
+			
+	def abrir_pdf_selecionado(self):
+		"""Abrir PDF da cotação selecionada"""
+		selected = self.cotacoes_tree.selection()
+		if not selected:
+			self.show_warning("Selecione uma cotação para abrir o PDF.")
+			return
+			
+		tags = self.cotacoes_tree.item(selected[0])['tags']
+		if not tags:
+			return
+			
+		cotacao_id = tags[0]
+		
+		# Primeiro gerar o PDF se não existir
+		current_username = self._get_current_username()
+		sucesso, resultado = gerar_pdf_cotacao_nova(cotacao_id, DB_NAME, current_username, contato_nome=self.contato_cliente_var.get())
+		
+		if sucesso:
+			# Abrir o PDF com o aplicativo padrão
+			try:
+				import os
+				import sys
+				if os.name == 'nt':  # Windows
+					os.startfile(resultado)
+				elif sys.platform == 'darwin':  # macOS
+					import subprocess
+					subprocess.Popen(['open', resultado])
+				else:  # Linux
+					import subprocess
+					subprocess.Popen(['xdg-open', resultado])
+			except Exception as e:
+				self.show_error(f"Erro ao abrir PDF: {e}")
+		else:
+			self.show_error(f"Erro ao gerar PDF: {resultado}")
