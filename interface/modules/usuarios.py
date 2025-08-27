@@ -7,6 +7,17 @@ from database import DB_NAME
 from utils.formatters import format_phone, validate_email
 
 class UsuariosModule(BaseModule):
+    def __init__(self, parent, user_id=None, role=None, main_window=None):
+        # Garantir que temos os parâmetros necessários
+        if user_id is None:
+            user_id = 1  # Default para usuário admin
+        if role is None:
+            role = "admin"
+        if main_window is None:
+            main_window = parent  # Fallback
+            
+        super().__init__(parent, user_id, role, main_window)
+        
     def setup_ui(self):
         container = tk.Frame(self.frame, bg='#f8fafc')
         container.pack(fill="both", expand=True, padx=20, pady=20)
@@ -23,7 +34,9 @@ class UsuariosModule(BaseModule):
         self.create_lista_usuarios_tab()
         
         self.current_usuario_id = None
-        self.carregar_usuarios()
+        
+        # Carregar usuários após criar toda a interface
+        self.after(100, self.carregar_usuarios)
         
     def create_header(self, parent):
         header_frame = tk.Frame(parent, bg='#f8fafc')
@@ -265,6 +278,11 @@ class UsuariosModule(BaseModule):
             conn.close()
             
     def carregar_usuarios(self):
+        # Verificar se a tree existe
+        if not hasattr(self, 'usuarios_tree'):
+            print("DEBUG: usuarios_tree não existe ainda")
+            return
+            
         for item in self.usuarios_tree.get_children():
             self.usuarios_tree.delete(item)
         
@@ -287,6 +305,7 @@ class UsuariosModule(BaseModule):
                     ORDER BY username
                 """)
             
+            usuarios_carregados = 0
             for row in c.fetchall():
                 usuario_id, username, nome_completo, role, email, telefone = row
                 self.usuarios_tree.insert("", "end", values=(
@@ -296,9 +315,13 @@ class UsuariosModule(BaseModule):
                     email or "",
                     format_phone(telefone) if telefone else ""
                 ), tags=(usuario_id,))
+                usuarios_carregados += 1
+                
+            print(f"DEBUG: {usuarios_carregados} usuários carregados na lista")
                 
         except sqlite3.Error as e:
             self.show_error(f"Erro ao buscar usuários: {e}")
+            print(f"DEBUG: Erro SQL: {e}")
         finally:
             conn.close()
             
