@@ -58,13 +58,25 @@ class BaseModule:
         return body
     
     def create_button(self, parent, text, command, variant='primary', **kwargs):
-        """Criar botão estilizado (mantém assinatura compatível por kwargs)."""
+        """Criar botão estilizado (mantém assinatura compatível por kwargs).
+        Remove opções não suportadas por ttk.Button (ex.: bg, fg, relief...).
+        """
         style = {
             'primary': 'Primary.TButton',
             'success': 'Success.TButton',
             'danger': 'Danger.TButton',
+            'secondary': 'Secondary.TButton',
+            'ghost': 'Ghost.TButton',
         }.get(variant, 'Primary.TButton')
-        button = ttk.Button(parent, text=text, command=command, style=style, **kwargs)
+
+        # Sanitize unsupported ttk options passed from legacy calls
+        unsupported = {
+            'bg', 'background', 'fg', 'foreground', 'relief', 'bd', 'borderwidth',
+            'highlightthickness', 'cursor', 'padx', 'pady'
+        }
+        safe_kwargs = {k: v for k, v in kwargs.items() if k not in unsupported}
+
+        button = ttk.Button(parent, text=text, command=command, style=style, **safe_kwargs)
         return button
     
     def create_search_frame(self, parent, placeholder="Buscar...", command=None):
