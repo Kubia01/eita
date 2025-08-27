@@ -448,9 +448,6 @@ class CotacoesModule(BaseModule):
 		self.item_nome_combo_compra.pack(side="left", fill="x", expand=True)
 		self.item_nome_combo_compra.bind("<<ComboboxSelected>>", self.on_item_selected)
 		
-		refresh_produtos_btn_compra = self.create_button(nome_frame_compra, "🔄", self.refresh_produtos, bg='#10b981')
-		refresh_produtos_btn_compra.pack(side="right", padx=(2, 0))
-		
 		# Terceira linha - Descrição para compra
 		tk.Label(compra_grid, text="Descrição:", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=0, padx=5, sticky="w")
 		tk.Entry(compra_grid, textvariable=self.item_desc_var, width=60).grid(row=2, column=1, columnspan=3, padx=5, sticky="ew")
@@ -494,9 +491,6 @@ class CotacoesModule(BaseModule):
 		self.item_nome_combo_locacao = ttk.Combobox(nome_frame_locacao, textvariable=self.item_nome_var, width=40)
 		self.item_nome_combo_locacao.pack(side="left", fill="x", expand=True)
 		self.item_nome_combo_locacao.bind("<<ComboboxSelected>>", self.on_item_selected)
-		
-		refresh_produtos_btn_locacao = self.create_button(nome_frame_locacao, "🔄", self.refresh_produtos, bg='#10b981')
-		refresh_produtos_btn_locacao.pack(side="right", padx=(2, 0))
 		
 		# Segunda linha - Descrição para locação
 		tk.Label(locacao_grid, text="Descrição:", font=("Arial", 10, "bold"), bg="white").grid(row=1, column=0, padx=5, sticky="w")

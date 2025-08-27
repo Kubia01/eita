@@ -205,24 +205,55 @@ class RelatoriosModule(BaseModule):
 		
 		self.cliente_combo = ttk.Combobox(cliente_frame, textvariable=self.cliente_var, width=40)
 		self.cliente_combo.pack(side="left", fill="x", expand=True)
+		self.cliente_combo.bind("<<ComboboxSelected>>", self.on_cliente_selected)
 		
-		# Botão para buscar/atualizar clientes
-		refresh_clientes_btn = self.create_button(cliente_frame, "🔄", self.refresh_clientes, bg='#10b981')
-		refresh_clientes_btn.pack(side="right", padx=(5, 0))
+		# Refresh button removed
 		
-		# Filial
-		tk.Label(fields_frame, text="Filial *:", 
+		# Número do relatório
+		tk.Label(fields_frame, text="Número do Relatório:", 
 				 font=('Arial', 10, 'bold'), bg='white').grid(row=0, column=2, sticky="w", pady=5, padx=(20, 0))
-		self.filial_var = tk.StringVar(value="2")
-		filial_combo = ttk.Combobox(fields_frame, textvariable=self.filial_var, 
-								   values=["1 - WORLD COMP COMPRESSORES LTDA", 
-										  "2 - WORLD COMP DO BRASIL COMPRESSORES LTDA"], 
-								   width=45, state="readonly")
-		filial_combo.grid(row=0, column=3, sticky="ew", padx=(10, 0), pady=5)
+		self.numero_relatorio_var = tk.StringVar()
+		tk.Entry(fields_frame, textvariable=self.numero_relatorio_var, 
+				 font=('Arial', 10), width=15).grid(row=0, column=3, sticky="w", padx=(10, 0), pady=5)
+		
+		# Data de Criação
+		tk.Label(fields_frame, text="Data de Criação:", 
+				 font=('Arial', 10, 'bold'), bg='white').grid(row=1, column=0, sticky="w", pady=5, padx=(20, 0))
+		self.data_criacao_var = tk.StringVar(value=datetime.now().strftime('%d/%m/%Y'))
+		tk.Entry(fields_frame, textvariable=self.data_criacao_var, 
+				 font=('Arial', 10), width=15).grid(row=1, column=1, sticky="w", padx=(10, 0), pady=5)
+		
+		# Formulário de Serviço
+		tk.Label(fields_frame, text="Formulário de Serviço:", 
+				 font=('Arial', 10, 'bold'), bg='white').grid(row=1, column=2, sticky="w", pady=5)
+		self.formulario_servico_var = tk.StringVar()
+		tk.Entry(fields_frame, textvariable=self.formulario_servico_var, 
+				 font=('Arial', 10), width=30).grid(row=1, column=3, sticky="ew", padx=(10, 0), pady=5)
+		
+		# Tipo de Serviço
+		tk.Label(fields_frame, text="Tipo de Serviço:", 
+				 font=('Arial', 10, 'bold'), bg='white').grid(row=2, column=0, sticky="w", pady=5, padx=(20, 0))
+		self.tipo_servico_var = tk.StringVar()
+		tipo_combo = ttk.Combobox(fields_frame, textvariable=self.tipo_servico_var, 
+								 values=["Manutenção", "Reparo", "Instalação", "Inspeção", "Consultoria"],
+								 width=12)
+		tipo_combo.grid(row=2, column=1, sticky="w", padx=(10, 0), pady=5)
+		
+		# Data de Recebimento
+		tk.Label(fields_frame, text="Data de Recebimento:", 
+				 font=('Arial', 10, 'bold'), bg='white').grid(row=2, column=2, sticky="w", pady=5)
+		self.data_recebimento_var = tk.StringVar()
+		tk.Entry(fields_frame, textvariable=self.data_recebimento_var, 
+				 font=('Arial', 10), width=30).grid(row=2, column=3, sticky="ew", padx=(10, 0), pady=5)
+		
+		# Descrição do Serviço
+		tk.Label(fields_frame, text="Descrição do Serviço:", 
+				 font=('Arial', 10, 'bold'), bg='white').grid(row=3, column=0, sticky="nw", pady=5)
+		self.descricao_text = scrolledtext.ScrolledText(fields_frame, height=3, width=40)
+		self.descricao_text.grid(row=3, column=1, columnspan=3, sticky="ew", padx=(10, 0), pady=5)
 		
 		# Configurar colunas
 		fields_frame.grid_columnconfigure(1, weight=1)
-		fields_frame.grid_columnconfigure(3, weight=1)
 		
 	def create_servico_section(self, parent):
 		section_frame = self.create_section_frame(parent, "Dados do Serviço")
@@ -300,12 +331,12 @@ class RelatoriosModule(BaseModule):
 		self.tecnico_combo = ttk.Combobox(add_tecnico_frame, textvariable=self.tecnico_var, width=30)
 		self.tecnico_combo.pack(side="left", padx=(10, 0))
 		
-		# Botão para buscar/atualizar técnicos
-		refresh_tecnicos_btn = self.create_button(add_tecnico_frame, "🔄", self.refresh_tecnicos, bg='#10b981')
-		refresh_tecnicos_btn.pack(side="left", padx=(5, 0))
+		# Refresh button removed
 		
 		add_tecnico_btn = self.create_button(add_tecnico_frame, "Adicionar Técnico", self.adicionar_tecnico)
 		add_tecnico_btn.pack(side="left", padx=(10, 0))
+		
+		# Refresh button removed
 		
 		# Notebook para técnicos
 		self.tecnicos_notebook = ttk.Notebook(section_frame)
