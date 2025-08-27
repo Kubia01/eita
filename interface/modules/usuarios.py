@@ -16,34 +16,24 @@ class UsuariosModule(BaseModule):
         if main_window is None:
             main_window = parent  # Fallback
             
-        try:
-            super().__init__(parent, user_id, role, main_window)
-        except Exception as e:
-            print(f"DEBUG: Erro na inicialização do UsuariosModule: {e}")
-            import traceback
-            traceback.print_exc()
+        super().__init__(parent, user_id, role, main_window)
         
     def setup_ui(self):
-        try:
-            container = tk.Frame(self.frame, bg='#f8fafc')
-            container.pack(fill="both", expand=True, padx=20, pady=20)
-            
-            # Header
-            self.create_header(container)
-            
-            # Notebook
-            self.notebook = ttk.Notebook(container)
-            self.notebook.pack(fill="both", expand=True, pady=(20, 0))
-            
-            # Abas
-            self.create_novo_usuario_tab()
-            self.create_lista_usuarios_tab()
-            
-            self.current_usuario_id = None
-        except Exception as e:
-            print(f"DEBUG: Erro no setup_ui do UsuariosModule: {e}")
-            import traceback
-            traceback.print_exc()
+        container = tk.Frame(self.frame, bg='#f8fafc')
+        container.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        # Header
+        self.create_header(container)
+        
+        # Notebook
+        self.notebook = ttk.Notebook(container)
+        self.notebook.pack(fill="both", expand=True, pady=(20, 0))
+        
+        # Abas
+        self.create_novo_usuario_tab()
+        self.create_lista_usuarios_tab()
+        
+        self.current_usuario_id = None
         
     def create_header(self, parent):
         header_frame = tk.Frame(parent, bg='#f8fafc')
@@ -148,15 +138,8 @@ class UsuariosModule(BaseModule):
         container.pack(fill="both", expand=True)
         
         # Frame de busca
-        try:
-            search_frame, self.search_var = self.create_search_frame(container, command=self.buscar_usuarios)
-            search_frame.pack(fill="x", pady=(0, 15))
-        except Exception as e:
-            print(f"DEBUG: Erro ao criar search_frame: {e}")
-            # Criar um frame simples como fallback
-            search_frame = tk.Frame(container, bg='white')
-            search_frame.pack(fill="x", pady=(0, 15))
-            self.search_var = tk.StringVar()
+        search_frame, self.search_var = self.create_search_frame(container, command=self.buscar_usuarios)
+        search_frame.pack(fill="x", pady=(0, 15))
         
         # Treeview
         columns = ("username", "nome_completo", "role", "email", "telefone")
@@ -295,56 +278,38 @@ class UsuariosModule(BaseModule):
             conn.close()
             
     def carregar_usuarios(self):
+        # Verificar se a tree existe
+        if not hasattr(self, 'usuarios_tree'):
+            return
+            
+        for item in self.usuarios_tree.get_children():
+            self.usuarios_tree.delete(item)
+        
+        conn = sqlite3.connect(DB_NAME)
+        c = conn.cursor()
+        
         try:
-            # Verificar se a tree existe
-            if not hasattr(self, 'usuarios_tree'):
-                print("DEBUG: usuarios_tree não existe ainda")
-                return
-                
-            print("DEBUG: Iniciando carregamento de usuários...")
+            # Buscar todos os usuários
+            c.execute("""
+                SELECT id, username, nome_completo, role, email, telefone
+                FROM usuarios
+                ORDER BY username
+            """)
             
-            for item in self.usuarios_tree.get_children():
-                self.usuarios_tree.delete(item)
-            
-            conn = sqlite3.connect(DB_NAME)
-            c = conn.cursor()
-            
-            try:
-                # Consulta simples primeiro
-                c.execute("SELECT COUNT(*) FROM usuarios")
-                count = c.fetchone()[0]
-                print(f"DEBUG: Total de usuários no banco: {count}")
-                
-                # Buscar todos os usuários
-                c.execute("""
-                    SELECT id, username, nome_completo, role, email, telefone
-                    FROM usuarios
-                    ORDER BY username
-                """)
-                
-                usuarios_carregados = 0
-                for row in c.fetchall():
-                    usuario_id, username, nome_completo, role, email, telefone = row
-                    self.usuarios_tree.insert("", "end", values=(
-                        username,
-                        nome_completo or "",
-                        role,
-                        email or "",
-                        format_phone(telefone) if telefone else ""
-                    ), tags=(usuario_id,))
-                    usuarios_carregados += 1
+            for row in c.fetchall():
+                usuario_id, username, nome_completo, role, email, telefone = row
+                self.usuarios_tree.insert("", "end", values=(
+                    username,
+                    nome_completo or "",
+                    role,
+                    email or "",
+                    format_phone(telefone) if telefone else ""
+                ), tags=(usuario_id,))
                     
-                print(f"DEBUG: {usuarios_carregados} usuários carregados na lista")
-                    
-            except sqlite3.Error as e:
-                print(f"DEBUG: Erro SQL: {e}")
-                self.show_error(f"Erro ao buscar usuários: {e}")
-            finally:
-                conn.close()
-        except Exception as e:
-            print(f"DEBUG: Erro geral em carregar_usuarios: {e}")
-            import traceback
-            traceback.print_exc()
+        except sqlite3.Error as e:
+            self.show_error(f"Erro ao buscar usuários: {e}")
+        finally:
+            conn.close()
             
     def buscar_usuarios(self):
         termo = self.search_var.get().strip()
