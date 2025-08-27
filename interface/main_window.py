@@ -30,8 +30,15 @@ class MainWindow:
             pass
         self.root.configure(bg=PALETTE["bg_app"]) 
         
-        # Centralizar janela
-        self.center_window()
+        # Maximizar janela após login para ocupar a tela inteira
+        try:
+            self.root.state('zoomed')
+        except Exception:
+            try:
+                self.root.attributes('-zoomed', True)
+            except Exception:
+                # Fallback: centralizar
+                self.center_window()
         
     def center_window(self):
         """Centralizar a janela na tela"""
@@ -169,6 +176,11 @@ class MainWindow:
 
         # Construir navegação lateral com botões que selecionam as abas do notebook
         self._build_side_nav()
+        # Destacar item ativo ao trocar de aba
+        try:
+            self.notebook.bind("<<NotebookTabChanged>>", self._on_tab_changed)
+        except Exception:
+            pass
 
     def _tab_text_to_key(self, tab_text: str) -> str:
         mapping = {
@@ -186,18 +198,33 @@ class MainWindow:
     def _build_side_nav(self):
         """Cria botões verticais para navegar entre as abas do notebook."""
         try:
-            tabs = self.notebook.tabs()
-            for idx, tab_id in enumerate(tabs):
+            self._nav_buttons = []
+            for tab_id in self.notebook.tabs():
                 text = self.notebook.tab(tab_id, option='text')
                 btn = ttk.Button(
                     self.side_nav,
                     text=text,
                     style='Secondary.TButton',
-                    command=lambda i=idx: self.notebook.select(i)
+                    command=lambda t=tab_id: self.notebook.select(t)
                 )
                 btn.pack(fill='x', padx=10, pady=6)
+                self._nav_buttons.append((tab_id, btn))
+            # Inicial: marcar selecionado
+            self._on_tab_changed()
         except Exception as e:
             print(f"Aviso: falha ao construir navegação lateral: {e}")
+
+    def _on_tab_changed(self, *_args):
+        """Atualiza o estilo do botão ativo conforme a aba selecionada."""
+        try:
+            current = self.notebook.select()
+            for tab_id, btn in getattr(self, '_nav_buttons', []):
+                if tab_id == current:
+                    btn.configure(style='Primary.TButton')
+                else:
+                    btn.configure(style='Secondary.TButton')
+        except Exception:
+            pass
 
     def _load_user_permissions(self):
         """Carrega as permissões do usuário corrente em self.user_permissions"""
