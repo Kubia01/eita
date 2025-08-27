@@ -98,28 +98,18 @@ class RelatorioPDF(FPDF):
         self.set_draw_color(70, 70, 70)  # Cor cinza escura para bordas
         self.rect(5, 5, 200, 287)  # A4: 210x297, então 5mm de margem
         
-        # Cabeçalho com imagem fixa (substitui qualquer conteúdo dinâmico) encostando na borda
-        try:
-            header_img = os.path.join(os.path.dirname(__file__), '..', 'cabeçalho.jpeg')
-            if not os.path.exists(header_img):
-                header_img = os.path.join(os.path.dirname(__file__), '..', 'cabecalho.jpeg')
-            if os.path.exists(header_img):
-                # Posicionar a imagem dentro da borda, tocando o limite sem cobrir a linha
-                self.image(header_img, x=5.5, y=5.5, w=199, h=29)
-        except Exception:
-            pass
-        
-        # Linha de separação e posicionamento após header
+        # Linha de separação no topo
         self.set_draw_color(*self.dark_blue)
         self.set_line_width(0.8)
-        self.line(10, 35, 200, 35)
-        # Garantir que conteúdo não sobreponha o cabeçalho
+        self.line(10, 15, 200, 15)
+        
+        # Posicionamento do conteúdo
         try:
-            self.set_top_margin(40)
+            self.set_top_margin(20)
         except Exception:
             pass
-        if self.get_y() < 40:
-            self.set_y(40)
+        if self.get_y() < 20:
+            self.set_y(20)
         
         self.first_page = False
         self.set_text_color(0, 0, 0)  # Resetar cor do texto
