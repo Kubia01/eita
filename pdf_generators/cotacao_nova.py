@@ -302,8 +302,8 @@ def gerar_pdf_cotacao_nova(cotacao_id, db_name, current_user=None, contato_nome=
                 pdf.set_auto_page_break(auto=False)
             except Exception:
                 pass
-            # Posição segura na parte inferior esquerda (acima da margem)
-            pdf.set_xy(14, 248)  # ajuste fino se necessário
+            # Posição segura na parte inferior esquerda (abaixado um pouco)
+            pdf.set_xy(14, 254)  # ajuste fino conforme feedback
             try:
                 pdf.set_font('Arial', 'B', 12)
             except Exception:
@@ -312,16 +312,19 @@ def gerar_pdf_cotacao_nova(cotacao_id, db_name, current_user=None, contato_nome=
             cliente_line = (pdf.cliente_nome or '').strip()
             if cliente_line:
                 line = getattr(pdf, 'clean_pdf_text', lambda x: x)(cliente_line)
+                pdf.set_x(14)
                 pdf.cell(0, 6, line, 0, 1, 'L')
 
             contato_line = (contato_nome or '').strip()
             if contato_line:
                 line = getattr(pdf, 'clean_pdf_text', lambda x: x)(f"A/C : {contato_line}")
+                pdf.set_x(14)
                 pdf.cell(0, 6, line, 0, 1, 'L')
 
             data_line = getattr(pdf, 'data_proposta', None) or format_date(data_criacao)
             if data_line:
                 line = getattr(pdf, 'clean_pdf_text', lambda x: x)(f"Data: {data_line}")
+                pdf.set_x(14)
                 pdf.cell(0, 6, line, 0, 1, 'L')
         except Exception:
             pass
