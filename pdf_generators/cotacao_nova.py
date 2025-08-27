@@ -95,34 +95,24 @@ class PDFCotacao(FPDF):
         return True
 
     def header(self):
-        # NÃO exibir header na página 1 (capa JPEG)
+        # Não exibir header na capa
         if self.page_no() == 1:
             return
-            
-        # Na página 2, exibir apenas bordas (sem logo e dados, pois são manuais)
-        if self.page_no() == 2:
-            # Desenha apenas a borda
-            self.set_line_width(0.5)
-            self.rect(5, 5, 200, 287)  # A4: 210x297, então 5mm de margem
-            return
-            
-        # Desenha a borda em todas as páginas (exceto capa)
-        self.set_line_width(0.5)
-        self.rect(5, 5, 200, 287)  # A4: 210x297, então 5mm de margem
 
-        # Usar fonte padrão em negrito
-        self.set_font("Arial", 'B', 11)
-        
-        # Dados da proposta no canto superior esquerdo
-        self.set_y(10)
-        self.cell(0, 5, clean_text(self.dados_filial.get('nome', '')), 0, 1)
-        self.cell(0, 5, clean_text("PROPOSTA COMERCIAL:"), 0, 1)
-        self.cell(0, 5, clean_text(f"NÚMERO: {self.numero_proposta}"), 0, 1)
-        self.cell(0, 5, clean_text(f"DATA: {self.data_proposta}"), 0, 1)
-        
-        # Linha de separação
-        self.line(10, 35, 200, 35)
-        self.ln(5)
+        # Borda da página
+        self.set_line_width(0.5)
+        self.rect(5, 5, 200, 287)
+
+        # Cabeçalho com imagem fixa
+        try:
+            header_img = os.path.join(os.path.dirname(__file__), '..', 'cabeçalho.jpeg')
+            if not os.path.exists(header_img):
+                header_img = os.path.join(os.path.dirname(__file__), '..', 'cabecalho.jpeg')
+            if os.path.exists(header_img):
+                # Largura útil ~190mm; altura do header ~25mm
+                self.image(header_img, x=10, y=8, w=190)
+        except Exception:
+            pass
 
         # Se estiver em seção e esta for uma página complementar, reposicionar e imprimir o título do módulo
         if self._section_mode and getattr(self, '_section_cont_break', False):
