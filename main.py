@@ -7,7 +7,23 @@ import hashlib
 import sys
 import os
 
+def _set_working_directory():
+    """
+    Ajusta o diretório de trabalho para a pasta do executável (quando congelado)
+    ou para a pasta do script (em desenvolvimento). Isso garante que caminhos
+    relativos como 'data/' e arquivos de assets funcionem corretamente.
+    """
+    try:
+        if getattr(sys, 'frozen', False) and hasattr(sys, 'executable'):
+            base_dir = os.path.dirname(os.path.abspath(sys.executable))
+        else:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(base_dir)
+    except Exception:
+        pass
+
 def main():
+    _set_working_directory()
     try:
         print("=== Sistema CRM - Iniciando ===")
         print(f"Python: {sys.version}")

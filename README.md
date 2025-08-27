@@ -200,3 +200,39 @@ Este projeto é desenvolvido para uso interno da empresa de manutenção de comp
 ## 📞 Contato
 
 Para dúvidas ou suporte, entre em contato com a equipe de desenvolvimento. 
+
+## 📦 Geração de Executável (PyInstaller)
+
+Você pode gerar um executável para distribuir o sistema sem exigir Python no computador de destino.
+
+1) Instale dependências (em um ambiente limpo):
+
+```bash
+python -m pip install -U pip
+pip install -r requirements.txt
+pip install pyinstaller
+```
+
+2) Gere o executável (onefile):
+
+```bash
+pyinstaller --noconfirm \
+  --name "CRM-Compressores" \
+  --onefile \
+  --windowed \
+  --add-data "assets:assets" \
+  --add-data "imgfundo.jpg:." \
+  --add-data "caploc.jpg:." \
+  --add-data "logo.jpg:." \
+  main.py
+```
+
+Notas:
+- O app ajusta o diretório de trabalho ao iniciar para que caminhos relativos funcionem, inclusive no executável.
+- Na primeira execução, a pasta `data/` e o arquivo `crm_compressores.db` serão criados no mesmo diretório do executável.
+- Se você usar recursos adicionais (imagens/templates), some-os com `--add-data`.
+
+3) Distribuição
+
+- Envie o arquivo gerado em `dist/CRM-Compressores` (Windows: `CRM-Compressores.exe`).
+- Recomende colocar o executável em uma pasta com permissão de escrita, pois o sistema grava dados em `data/` ao lado do executável. 
