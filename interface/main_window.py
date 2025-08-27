@@ -121,10 +121,24 @@ class MainWindow:
                              fg='#e2e8f0')
         user_label.pack(anchor="e")
         
-        logout_btn = ttk.Button(right_frame,
-                              text="Sair",
-                              style='SecondaryOnDark.TButton',
+        logout_btn = tk.Button(right_frame,
+                              text="SAIR",
+                              font=('Arial', 10, 'bold'),
+                              bg='#000000',
+                              fg='#ffffff',
+                              bd=2,
+                              relief='raised',
                               command=self.logout)
+        
+        # Adicionar efeito hover
+        def on_enter(e):
+            logout_btn['bg'] = '#1e40af'
+        def on_leave(e):
+            logout_btn['bg'] = '#000000'
+        
+        logout_btn.bind("<Enter>", on_enter)
+        logout_btn.bind("<Leave>", on_leave)
+        
         logout_btn.pack(anchor="e", pady=(5, 0))
         
     def create_modules(self):
