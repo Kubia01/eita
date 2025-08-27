@@ -432,12 +432,13 @@ def gerar_pdf_cotacao_nova(cotacao_id, db_name, current_user=None, contato_nome=
         else:
             modelo_text = f" {modelo_compressor}" if modelo_compressor else ""
             texto_apresentacao = clean_text(f"""
-Prezados Senhores,
+Prezados,
 
-Agradecemos a sua solicitação e apresentamos nossas condições comerciais para fornecimento de peças para o compressor{modelo_text}.
+Agradecemos a sua solicitação e, conforme requerido, apresentamos nossas condições comerciais para fornecimento de peças para seu compressor{modelo_text}.
 
-A World Comp coloca-se a disposição para analisar, corrigir, prestar esclarecimentos para adequação das especificações e necessidades dos clientes, para tanto basta informar o número da proposta e revisão.
+A Word Comp Compressores é especializada em manutenção de compressores de parafuso das principais marcas do mercado, como Atlas Copco, Ingersoll Rand, Chicago. Atuamos também com revisão de equipamentos e unidades compressoras, venda de peças, bem como venda e locação de compressores de parafuso isento de óleo e lubrificados
 
+Com profissionais altamente qualificados e atendimento especializado, colocamo-nos à disposição para analisar, corrigir e prestar os devidos esclarecimentos, sempre buscando atender às especificações e necessidades dos nossos clientes.
 
 Atenciosamente,
             """)
