@@ -23,15 +23,9 @@ class LoginWindow:
         self.window = tk.Toplevel(self.root)
         self.window.title("Login - Proposta Comercial")
         self.window.configure(bg=PALETTE["bg_app"]) 
-        # Maximizado (sem forçar fullscreen)
-        try:
-            self.window.state('zoomed')
-        except Exception:
-            try:
-                self.window.attributes('-zoomed', True)
-            except Exception:
-                pass
-        self.window.resizable(True, True)
+        # Janela em tamanho fixo suficiente para exibir o cartão de login, centralizada
+        self.window.geometry("520x520")
+        self.window.resizable(False, False)
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)
 
         # In fullscreen, centering is not needed
@@ -52,26 +46,20 @@ class LoginWindow:
         self.window.after(50, lambda: self.username_entry.focus_set())
 
     def _build_ui(self):
-        container = tk.Frame(self.window, bg=PALETTE["bg_app"])
-        container.pack(fill="both", expand=True)
-
-        # Top brand bar
-        topbar = tk.Frame(container, bg=PALETTE["bg_header"], height=72)
-        topbar.pack(fill="x", side="top")
-        brand = tk.Label(topbar, text="Proposta Comercial", font=FONTS["title"], bg=PALETTE["bg_header"], fg="#ffffff")
-        brand.pack(side="left", padx=24, pady=18)
+        container = tk.Frame(self.window, bg=PALETTE["bg_app"]) 
+        container.pack(fill="both", expand=True, padx=24, pady=24)
 
         title = tk.Label(
             container,
-            text="Entrar",
+            text="Proposta Comercial",
             font=FONTS["title"],
             bg=PALETTE["bg_app"],
             fg=PALETTE["text_primary"],
         )
-        title.pack(anchor="n", pady=(32, 12))
+        title.pack(anchor="n", pady=(8, 16))
 
-        form_card = tk.Frame(container, bg='#ffffff', highlightthickness=1, highlightbackground=PALETTE["border"])
-        form_card.pack(fill="none", padx=24, pady=12)
+        form_card = tk.Frame(container, bg='#ffffff', highlightthickness=1, highlightbackground=PALETTE["border"]) 
+        form_card.pack(fill="x", padx=4, pady=4)
         form = tk.Frame(form_card, bg='#ffffff')
         form.pack(fill="both", expand=True, padx=24, pady=24)
 
