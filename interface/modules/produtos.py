@@ -369,6 +369,9 @@ class ProdutosModule(BaseModule):
         ativar_btn = self.create_button(lista_buttons, "Ativar/Desativar", self.toggle_ativo, bg='#f59e0b')
         ativar_btn.pack(side="left")
 
+        excluir_btn = self.create_button(lista_buttons, "Excluir", self.excluir_produto, bg='#dc2626')
+        excluir_btn.pack(side="left", padx=(10, 0))
+
     def on_tipo_changed(self, event):
         """Controla visibilidade do campo NCM e seção de kit baseado no tipo"""
         current_tipo = self.tipo_var.get()
@@ -729,6 +732,38 @@ class ProdutosModule(BaseModule):
             self.show_warning("Selecione um produto/serviço/kit para editar.")
             return
         self.carregar_produto_para_edicao(produto_id)
+        # Ir imediatamente para a aba de criação/edição
+        try:
+            self.notebook.select(0)
+        except Exception:
+            pass
+
+    def excluir_produto(self):
+        """Excluir produto/serviço/kit selecionado."""
+        produto_id, tree = self._get_selected_produto_id()
+        if not produto_id:
+            self.show_warning("Selecione um registro para excluir.")
+            return
+        if not messagebox.askyesno("Confirmar Exclusão", "Deseja realmente excluir este registro?\n(Itens de kit vinculados serão removidos.)"):
+            return
+        conn = sqlite3.connect(DB_NAME)
+        c = conn.cursor()
+        try:
+            # Remover composições de kit onde este registro seja kit_id (se for kit)
+            c.execute("DELETE FROM kit_items WHERE kit_id = ?", (produto_id,))
+            # Remover referências onde este registro seja um item de kit
+            c.execute("DELETE FROM kit_items WHERE produto_id = ?", (produto_id,))
+            # Remover o próprio produto
+            c.execute("DELETE FROM produtos WHERE id = ?", (produto_id,))
+            conn.commit()
+            self.show_success("Registro excluído com sucesso!")
+            # Atualizar listas
+            self.carregar_produtos()
+            self.carregar_produtos_para_kit()
+        except sqlite3.Error as e:
+            self.show_error(f"Erro ao excluir: {e}")
+        finally:
+            conn.close()
         
     def carregar_produto_para_edicao(self, produto_id):
         """Carregar dados do produto para edição"""
