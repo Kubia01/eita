@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox, scrolledtext, filedialog
 import sqlite3
 import os
 import json
+import sys
 from datetime import datetime
 from .base_module import BaseModule
 from database import DB_NAME
@@ -1231,32 +1232,38 @@ class RelatoriosModule(BaseModule):
 			except Exception:
 				pass
 			
-			# Carregar anexos (índices 35-38)
+			# Carregar anexos usando colunas por aba, para evitar erros de índice
 			for aba_num in range(1, 5):
 				# Limpar anexos e listbox desta aba primeiro
 				self.anexos_aba[aba_num] = []
 				listbox = getattr(self, f'anexos_listbox_aba{aba_num}')
 				listbox.delete(0, tk.END)
-				
-				anexos_str = relatorio[34 + aba_num]  # anexos_aba1, anexos_aba2, etc.
+
+				anexos_str = None
+				try:
+					c.execute(f"SELECT anexos_aba{aba_num} FROM relatorios_tecnicos WHERE id = ?", (relatorio_id,))
+					row_anx = c.fetchone()
+					anexos_str = row_anx[0] if row_anx else None
+				except Exception:
+					anexos_str = None
+
 				if anexos_str:
 					try:
 						# Tentar carregar como JSON
 						self.anexos_aba[aba_num] = json.loads(anexos_str)
 					except (json.JSONDecodeError, TypeError):
-						# Fallback para formato antigo (separado por ;)
-						anexos_list = anexos_str.split(';')
+						# Fallback para formato antigo (separado por ;) ou string simples
+						anexos_list = anexos_str.split(';') if isinstance(anexos_str, str) else []
 						self.anexos_aba[aba_num] = [anexo for anexo in anexos_list if anexo]
-					
-					# Atualizar listbox
-					for anexo in self.anexos_aba[aba_num]:
-						# Se for dict, preferir 'nome'; fallback para 'caminho'/'path'
-						if isinstance(anexo, dict):
-							nome_candidate = anexo.get('nome') or anexo.get('caminho') or anexo.get('path') or 'Arquivo sem nome'
-							nome_anexo = os.path.basename(str(nome_candidate))
-						else:
-							nome_anexo = os.path.basename(str(anexo)) if isinstance(anexo, (str, bytes)) else str(anexo)
-						listbox.insert(tk.END, nome_anexo)
+
+				# Atualizar listbox com nomes
+				for anexo in self.anexos_aba[aba_num]:
+					if isinstance(anexo, dict):
+						nome_candidate = anexo.get('nome') or anexo.get('caminho') or anexo.get('path') or 'Arquivo sem nome'
+						nome_anexo = os.path.basename(str(nome_candidate))
+					else:
+						nome_anexo = os.path.basename(str(anexo)) if isinstance(anexo, (str, bytes)) else str(anexo)
+					listbox.insert(tk.END, nome_anexo)
 			
 			# Carregar eventos dos técnicos
 			self.carregar_eventos_relatorio(relatorio_id)
