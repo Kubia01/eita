@@ -74,44 +74,42 @@ def apply_theme(root: tk.Misc) -> None:
         )
 
         # Buttons
-        style.configure(
-            "Primary.TButton",
-            background=PALETTE["accent"],
-            foreground="#ffffff",
-            bordercolor=PALETTE["accent"],
-            focusthickness=1,
-            focuscolor=PALETTE["focus"],
-            padding=(14, 8),
-        )
-        style.map(
-            "Primary.TButton",
-            background=[("active", "#2563eb"), ("disabled", "#93c5fd")],
-            foreground=[("disabled", "#e5e7eb")],
-        )
+        def _elevated_button(base, bg, fg="#ffffff", active_bg=None, disabled_bg=None):
+            style.configure(
+                base,
+                background=bg,
+                foreground=fg,
+                bordercolor=bg,
+                focusthickness=2,
+                focuscolor=PALETTE["focus"],
+                padding=(18, 10),
+            )
+            style.map(
+                base,
+                background=[("active", active_bg or bg), ("disabled", disabled_bg or bg)],
+                relief=[("pressed", "sunken"), ("!pressed", "flat")],
+            )
 
-        style.configure(
-            "Success.TButton",
-            background=PALETTE["success"],
-            foreground="#ffffff",
-            bordercolor=PALETTE["success"],
-            padding=(14, 8),
-        )
-        style.map(
-            "Success.TButton",
-            background=[("active", "#059669"), ("disabled", "#6ee7b7")],
-        )
+        def _outline_button(base, border, fg):
+            style.configure(
+                base,
+                background="#ffffff",
+                foreground=fg,
+                bordercolor=border,
+                focusthickness=2,
+                focuscolor=PALETTE["focus"],
+                padding=(16, 9),
+            )
+            style.map(
+                base,
+                background=[("active", "#f2f6fb")],
+            )
 
-        style.configure(
-            "Danger.TButton",
-            background=PALETTE["danger"],
-            foreground="#ffffff",
-            bordercolor=PALETTE["danger"],
-            padding=(12, 6),
-        )
-        style.map(
-            "Danger.TButton",
-            background=[("active", "#dc2626")],
-        )
+        _elevated_button("Primary.TButton", PALETTE["accent"], active_bg="#0854a0", disabled_bg="#9cc3ea")
+        _elevated_button("Success.TButton", PALETTE["success"], active_bg="#0b6b34", disabled_bg="#a7d7b9")
+        _elevated_button("Danger.TButton", PALETTE["danger"], active_bg="#a10000", disabled_bg="#e3a6a6")
+        _outline_button("Secondary.TButton", PALETTE["border"], PALETTE["text_primary"]) 
+        _outline_button("Ghost.TButton", PALETTE["bg_app"], PALETTE["text_secondary"]) 
 
         # Entries
         style.configure(

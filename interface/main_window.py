@@ -85,7 +85,7 @@ class MainWindow:
         left_frame.pack(side="left", fill="y", padx=20, pady=10)
         
         title_label = tk.Label(left_frame, 
-                              text="Sistema CRM Compressores",
+                              text="Proposta Comcerial",
                               font=FONTS["title"],
                               bg=PALETTE["bg_header"],
                               fg='white')
