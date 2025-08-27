@@ -114,8 +114,8 @@ class MainWindow:
         user_label.pack(anchor="e")
         
         logout_btn = ttk.Button(right_frame,
-                              text="Logout",
-                              style='Danger.TButton',
+                              text="Sair",
+                              style='SecondaryOnDark.TButton',
                               command=self.logout)
         logout_btn.pack(anchor="e", pady=(5, 0))
         

@@ -67,12 +67,12 @@ class BaseModule:
         Remove opções não suportadas por ttk.Button (ex.: bg, fg, relief...).
         """
         style = {
-            'primary': 'Primary.TButton',
-            'success': 'Success.TButton',
-            'danger': 'Danger.TButton',
+            'primary': 'Secondary.TButton',
+            'success': 'Secondary.TButton',
+            'danger': 'Secondary.TButton',
             'secondary': 'Secondary.TButton',
-            'ghost': 'Ghost.TButton',
-        }.get(variant, 'Primary.TButton')
+            'ghost': 'Secondary.TButton',
+        }.get(variant, 'Secondary.TButton')
 
         # Sanitize unsupported ttk options passed from legacy calls
         unsupported = {
