@@ -44,18 +44,23 @@ class BaseModule:
             return self.role == role_name
     
     def create_section_frame(self, parent, title, padx=10, pady=10):
-        """Criar frame de seção com título (visual moderno)"""
-        outer = tk.Frame(parent, bg=PALETTE["bg_app"])  # spacing wrapper
-        outer.pack_propagate(False)
-        card = tk.Frame(outer, bg='#ffffff', highlightthickness=1, highlightbackground=PALETTE["border"])
-        card.pack(fill="both", expand=True)
-        header = tk.Label(card, text=title, font=FONTS["subtitle"], bg='#ffffff', fg=PALETTE["text_primary"])
+        """Criar frame de seção com título (compatível com uso anterior).
+
+        Retorna um Frame que o chamador pode `pack` normalmente e adicionar
+        widgets filhos dentro. O próprio frame já contém um cabeçalho e
+        área de conteúdo, mas para manter compatibilidade, o conteúdo
+        também pode ser adicionado diretamente no frame retornado.
+        """
+        container = tk.Frame(parent, bg='#ffffff', highlightthickness=1, highlightbackground=PALETTE["border"]) 
+        # Header
+        header = tk.Label(container, text=title, font=FONTS["subtitle"], bg='#ffffff', fg=PALETTE["text_primary"])
         header.pack(anchor="w", padx=12, pady=(12, 6))
-        body = tk.Frame(card, bg='#ffffff')
-        body.pack(fill="both", expand=True, padx=12, pady=(0, 12))
-        # Return the body so callers add content as antes
-        body._outer_container = outer  # allow caller to pack/place the whole block if needed
-        return body
+        # Inner content holder (optional use)
+        content = tk.Frame(container, bg='#ffffff')
+        content.pack(fill="both", expand=True, padx=12, pady=(0, 12))
+        # For backward compatibility, allow adding directly to container
+        container.content = content
+        return container
     
     def create_button(self, parent, text, command, variant='primary', **kwargs):
         """Criar botão estilizado (mantém assinatura compatível por kwargs).

@@ -23,16 +23,14 @@ class LoginWindow:
         self.window = tk.Toplevel(self.root)
         self.window.title("Login - Proposta Comercial")
         self.window.configure(bg=PALETTE["bg_app"]) 
-        # Fullscreen login to match modern CRM splash
+        # Maximizado (sem forçar fullscreen)
         try:
-            self.window.state('zoomed')  # Windows full-screen like
+            self.window.state('zoomed')
         except Exception:
-            pass
-        try:
-            self.window.attributes('-zoomed', True)  # Linux/others
-        except Exception:
-            pass
-        self.window.attributes('-fullscreen', True)
+            try:
+                self.window.attributes('-zoomed', True)
+            except Exception:
+                pass
         self.window.resizable(True, True)
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)
 
@@ -111,22 +109,7 @@ class LoginWindow:
         )
         login_btn.pack(side="left")
 
-        quick_btn = ttk.Button(
-            actions,
-            text="Login rápido (admin)",
-            style="Success.TButton",
-            command=self._quick_login_admin,
-        )
-        quick_btn.pack(side="right")
-
-        helper = tk.Label(
-            form,
-            text="Padrão: admin / admin123",
-            font=FONTS["base"],
-            bg='#ffffff',
-            fg="#64748b",
-        )
-        helper.pack(anchor="w", pady=(12, 0))
+        # Removido texto de dica de senha para maior profissionalismo
 
     def _on_close(self):
         try:
