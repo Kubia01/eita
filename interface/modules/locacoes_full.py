@@ -73,7 +73,10 @@ class LocacoesModule(BaseModule):
 		editar_btn.pack(side="left", padx=(0, 10))
 		# Manter apenas o botão inferior direito de PDF
 		gerar_pdf_lista_btn = self.create_button(lista_buttons, "Gerar PDF", self.gerar_pdf, bg='#10b981')
-		gerar_pdf_lista_btn.pack(side="right")
+		gerar_pdf_lista_btn.pack(side="right", padx=(0, 10))
+		
+		abrir_pdf_lista_btn = self.create_button(lista_buttons, "Abrir PDF", self.abrir_pdf, bg='#3b82f6')
+		abrir_pdf_lista_btn.pack(side="right")
 
 		columns = ("numero", "cliente", "data", "valor", "status")
 		self.tree = ttk.Treeview(lista_inner, columns=columns, show="headings")
@@ -580,6 +583,49 @@ class LocacoesModule(BaseModule):
 				self.show_error(f"Erro ao gerar PDF: {resultado}")
 		except Exception as e:
 			self.show_error(f"Erro ao gerar PDF: {e}")
+			
+	def abrir_pdf(self):
+		"""Abrir PDF da locação selecionada"""
+		selected = self.tree.selection()
+		if not selected:
+			self.show_warning("Selecione uma locação para abrir o PDF.")
+			return
+			
+		tags = self.tree.item(selected[0])['tags']
+		if not tags:
+			return
+			
+		cotacao_id = tags[0]
+		
+		# Primeiro gerar o PDF se não existir
+		try:
+			current_username = self._get_current_username()
+			sucesso, resultado = gerar_pdf_cotacao_nova(
+				cotacao_id, 
+				DB_NAME, 
+				current_username, 
+				contato_nome=self.contato_cliente_var.get()
+			)
+			
+			if sucesso:
+				# Abrir o PDF com o aplicativo padrão
+				try:
+					import os
+					import sys
+					if os.name == 'nt':  # Windows
+						os.startfile(resultado)
+					elif sys.platform == 'darwin':  # macOS
+						import subprocess
+						subprocess.Popen(['open', resultado])
+					else:  # Linux
+						import subprocess
+						subprocess.Popen(['xdg-open', resultado])
+				except Exception as e:
+					self.show_error(f"Erro ao abrir PDF: {e}")
+			else:
+				self.show_error(f"Erro ao gerar PDF: {resultado}")
+		except Exception as e:
+			self.show_error(f"Erro ao abrir PDF: {e}")
 
 	def _get_current_username(self):
 		try:
