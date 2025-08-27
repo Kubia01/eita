@@ -291,14 +291,10 @@ def gerar_pdf_cotacao_nova(cotacao_id, db_name, current_user=None, contato_nome=
 
         # Fundo fixo para capa
         if (tipo_cotacao or '').lower() in ('locação', 'locacao'):
-            # Locação usa capa específica
-            capa_loc_path = os.path.join(os.path.dirname(__file__), '..', 'capaloc.jpg')
+            # Locação: sempre usar caploc.jpg
+            capa_loc_path = os.path.join(os.path.dirname(__file__), '..', 'caploc.jpg')
             if os.path.exists(capa_loc_path):
                 pdf.image(capa_loc_path, x=0, y=0, w=210, h=297)
-            else:
-                capa_loc_path2 = os.path.join(os.path.dirname(__file__), '..', 'caploc.jpg')
-                if os.path.exists(capa_loc_path2):
-                    pdf.image(capa_loc_path2, x=0, y=0, w=210, h=297)
         else:
             # Compra: sempre usar imgfundo.jpg como fundo fixo
             fundo_padrao = os.path.join(os.path.dirname(__file__), '..', 'imgfundo.jpg')
