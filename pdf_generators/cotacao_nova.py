@@ -95,8 +95,8 @@ class PDFCotacao(FPDF):
         return True
 
     def header(self):
-        # Não exibir header na capa nem na página 2 (comportamento antigo)
-        if self.page_no() in (1, 2):
+        # Não exibir header apenas na capa
+        if self.page_no() == 1:
             return
 
         # Borda da página
@@ -104,13 +104,13 @@ class PDFCotacao(FPDF):
         self.rect(5, 5, 200, 287)
 
         # Cabeçalho com imagem fixa ocupando toda a faixa do cabeçalho, encostando na borda
+        # (incluindo página 2, mas sem logo)
         try:
             header_img = os.path.join(os.path.dirname(__file__), '..', 'cabeçalho.jpeg')
             if not os.path.exists(header_img):
                 header_img = os.path.join(os.path.dirname(__file__), '..', 'cabecalho.jpeg')
             if os.path.exists(header_img):
-                # Posicionar a imagem dentro da borda (sem cobrir a linha):
-                # deslocar 0,5mm de cada lado e usar altura ligeiramente menor
+                # Posicionar a imagem dentro da borda (sem cobrir a linha)
                 self.image(header_img, x=5.5, y=5.5, w=199, h=29)
         except Exception:
             pass
