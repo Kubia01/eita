@@ -6,6 +6,7 @@ import sqlite3
 import hashlib
 import sys
 import os
+import importlib
 
 def _set_working_directory():
     """

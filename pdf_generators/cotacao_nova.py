@@ -4,6 +4,7 @@ import datetime
 import sys
 import re
 from fpdf import FPDF
+from utils.resources import resource_path
 from database import DB_NAME
 from utils.formatters import format_cep, format_phone, format_currency, format_date, format_cnpj
 
@@ -106,11 +107,11 @@ class PDFCotacao(FPDF):
         # Cabeçalho com imagem fixa ocupando toda a faixa do cabeçalho, encostando na borda
         # (incluindo página 2, mas sem logo)
         try:
-            header_img = os.path.join(os.path.dirname(__file__), '..', 'cabeçalho.jpeg')
+            # Tentar com acento e sem acento via resource_path
+            header_img = resource_path('cabeçalho.jpeg')
             if not os.path.exists(header_img):
-                header_img = os.path.join(os.path.dirname(__file__), '..', 'cabecalho.jpeg')
+                header_img = resource_path('cabecalho.jpeg')
             if os.path.exists(header_img):
-                # Posicionar a imagem dentro da borda (sem cobrir a linha)
                 self.image(header_img, x=5.5, y=5.5, w=199, h=29)
         except Exception:
             pass
@@ -292,7 +293,7 @@ def gerar_pdf_cotacao_nova(cotacao_id, db_name, current_user=None, contato_nome=
         pdf.add_page()
 
         # Fundo fixo para capa: usar sempre caploc.jpg (padrão unificado)
-        capa_path = os.path.join(os.path.dirname(__file__), '..', 'caploc.jpg')
+        capa_path = resource_path('caploc.jpg')
         if os.path.exists(capa_path):
             pdf.image(capa_path, x=0, y=0, w=210, h=297)
 

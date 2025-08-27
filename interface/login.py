@@ -5,7 +5,7 @@ import hashlib
 
 from database import DB_NAME, criar_banco
 from utils.theme import apply_theme, PALETTE, FONTS
-from interface.main_window import MainWindow
+from .main_window import MainWindow
 
 
 class LoginWindow:

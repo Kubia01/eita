@@ -1,5 +1,16 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import importlib
+from .modules import (
+    DashboardModule,
+    ClientesModule,
+    ProdutosModule,
+    CotacoesModule,
+    LocacoesModule,
+    RelatoriosModule,
+    UsuariosModule,
+    PermissoesModule,
+)
 import sqlite3
 from database import DB_NAME
 from utils.theme import apply_theme, style_header_frame, PALETTE, FONTS
@@ -142,15 +153,12 @@ class MainWindow:
         logout_btn.pack(anchor="e", pady=(5, 0))
         
     def create_modules(self):
-        """Criar todos os módulos do sistema com importação isolada e tolerante a falhas"""
-        def add_module(tab_text, module_path, class_name):
+        """Criar todos os módulos do sistema com importações estáticas (compatível com PyInstaller)"""
+        def add_module(tab_text, module_cls):
             frame = tk.Frame(self.notebook)
             self.notebook.add(frame, text=tab_text)
             try:
-                mod = __import__(module_path, fromlist=[class_name])
-                cls = getattr(mod, class_name)
-                instance = cls(frame, self.user_id, self.role, self)
-                # Se módulo estiver como somente leitura, tentar aplicar
+                instance = module_cls(frame, self.user_id, self.role, self)
                 module_key = self._tab_text_to_key(tab_text)
                 if not self.can_edit(module_key) and hasattr(instance, 'set_read_only'):
                     try:
@@ -164,29 +172,28 @@ class MainWindow:
 
         # Dashboard
         if self.has_access('dashboard'):
-            self.dashboard_module = add_module("📊 Dashboard", "interface.modules.dashboard", "DashboardModule")
+            self.dashboard_module = add_module("📊 Dashboard", DashboardModule)
         # Clientes
         if self.has_access('clientes'):
-            self.clientes_module = add_module("👥 Clientes", "interface.modules.clientes", "ClientesModule")
+            self.clientes_module = add_module("👥 Clientes", ClientesModule)
         # Produtos
         if self.has_access('produtos'):
-            self.produtos_module = add_module("📦 Produtos", "interface.modules.produtos", "ProdutosModule")
+            self.produtos_module = add_module("📦 Produtos", ProdutosModule)
         # Compras (Cotações de compra)
         if self.has_access('cotacoes'):
-            self.cotacoes_module = add_module("💼 Serviços", "interface.modules.cotacoes", "CotacoesModule")
+            self.cotacoes_module = add_module("💼 Serviços", CotacoesModule)
         # Locações (aba separada - módulo independente)
         if self.has_access('relatorios') or self.has_access('cotacoes'):
-            # manter lógica de locações na permissão de cotações/relatórios se necessário, ou crie chave própria
             if self.has_access('relatorios') or self.has_access('cotacoes'):
-                self.locacoes_module = add_module("📄 Locação", "interface.modules.locacoes_full", "LocacoesModule")
+                self.locacoes_module = add_module("📄 Locação", LocacoesModule)
         # Relatórios
         if self.has_access('relatorios'):
-            self.relatorios_module = add_module("📋 Relatórios", "interface.modules.relatorios", "RelatoriosModule")
+            self.relatorios_module = add_module("📋 Relatórios", RelatoriosModule)
         # Usuários e Permissões
         if self.has_access('usuarios'):
-            self.usuarios_module = add_module("👤 Usuários", "interface.modules.usuarios", "UsuariosModule")
+            self.usuarios_module = add_module("👤 Usuários", UsuariosModule)
         if self.has_access('permissoes'):
-            self.permissoes_module = add_module("🔐 Permissões", "interface.modules.permissoes", "PermissoesModule")
+            self.permissoes_module = add_module("🔐 Permissões", PermissoesModule)
 
         # Construir navegação lateral com botões que selecionam as abas do notebook
         self._build_side_nav()
