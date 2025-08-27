@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext, filedialog
 import sqlite3
+import os
 import json
 from datetime import datetime
 from .base_module import BaseModule
@@ -725,14 +726,17 @@ class RelatoriosModule(BaseModule):
         listbox = getattr(self, f'anexos_listbox_aba{aba_numero}')
         
         for filepath in filepaths:
-            nome_arquivo = filepath.split('/')[-1]
+            try:
+                nome_arquivo = os.path.basename(filepath)
+            except Exception:
+                nome_arquivo = str(filepath).split('/')[-1]
             anexo_info = {
                 'nome': nome_arquivo,
                 'caminho': filepath,
                 'descricao': f'Anexo da Aba {aba_numero}'
             }
             self.anexos_aba[aba_numero].append(anexo_info)
-            listbox.insert(tk.END, nome_anexo)
+            listbox.insert(tk.END, nome_arquivo)
         
     def remover_anexo(self, aba_numero):
         """Remover anexo selecionado"""
@@ -1204,13 +1208,12 @@ class RelatoriosModule(BaseModule):
                     
                     # Atualizar listbox
                     for anexo in self.anexos_aba[aba_num]:
-                        # Se for dict, usar nome; se for string, usar o nome do arquivo
+                        # Se for dict, preferir 'nome'; fallback para 'caminho'/'path'
                         if isinstance(anexo, dict):
-                            nome_anexo = anexo.get('nome', anexo.get('path', 'Arquivo sem nome'))
-                            if isinstance(nome_anexo, str) and '/' in nome_anexo:
-                                nome_anexo = nome_anexo.split('/')[-1]
+                            nome_candidate = anexo.get('nome') or anexo.get('caminho') or anexo.get('path') or 'Arquivo sem nome'
+                            nome_anexo = os.path.basename(str(nome_candidate))
                         else:
-                            nome_anexo = str(anexo).split('/')[-1] if isinstance(anexo, str) else str(anexo)
+                            nome_anexo = os.path.basename(str(anexo)) if isinstance(anexo, (str, bytes)) else str(anexo)
                         listbox.insert(tk.END, nome_anexo)
             
             # Carregar eventos dos técnicos
