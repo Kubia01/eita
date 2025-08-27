@@ -6,6 +6,7 @@ import sqlite3
 import hashlib
 import sys
 import os
+import importlib
 
 def _set_working_directory():
     """
@@ -42,6 +43,11 @@ def main():
         
         # Importar após verificar banco
         print("Carregando interface...")
+        # Sinalizar explicitamente ao PyInstaller que usamos o pacote interface.modules
+        try:
+            import interface.modules  # noqa: F401
+        except Exception:
+            pass
         from interface.login import LoginWindow
         
         # Criar janela principal

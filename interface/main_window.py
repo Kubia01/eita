@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import importlib
 import sqlite3
 from database import DB_NAME
 from utils.theme import apply_theme, style_header_frame, PALETTE, FONTS
@@ -143,11 +144,26 @@ class MainWindow:
         
     def create_modules(self):
         """Criar todos os módulos do sistema com importação isolada e tolerante a falhas"""
+        # Forçar import do pacote para que PyInstaller inclua submódulos
+        try:
+            import interface.modules as interface_modules  # noqa: F401
+        except Exception:
+            interface_modules = None  # type: ignore
+
         def add_module(tab_text, module_path, class_name):
             frame = tk.Frame(self.notebook)
             self.notebook.add(frame, text=tab_text)
             try:
-                mod = __import__(module_path, fromlist=[class_name])
+                # Tentar import dinâmico padrão
+                try:
+                    mod = importlib.import_module(module_path)
+                except Exception:
+                    # Fallback: obter classe a partir do pacote agregado interface.modules
+                    try:
+                        import interface.modules as aggregated
+                        mod = aggregated
+                    except Exception as e2:
+                        raise e2
                 cls = getattr(mod, class_name)
                 instance = cls(frame, self.user_id, self.role, self)
                 # Se módulo estiver como somente leitura, tentar aplicar
