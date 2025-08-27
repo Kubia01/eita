@@ -21,19 +21,22 @@ class LoginWindow:
 
         # Janela de login como Toplevel
         self.window = tk.Toplevel(self.root)
-        self.window.title("Login - CRM Compressores")
+        self.window.title("Login - Proposta Comercial")
         self.window.configure(bg=PALETTE["bg_app"]) 
-        self.window.geometry("420x320")
-        self.window.resizable(False, False)
+        # Fullscreen login to match modern CRM splash
+        try:
+            self.window.state('zoomed')  # Windows full-screen like
+        except Exception:
+            pass
+        try:
+            self.window.attributes('-zoomed', True)  # Linux/others
+        except Exception:
+            pass
+        self.window.attributes('-fullscreen', True)
+        self.window.resizable(True, True)
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)
 
-        # Centralizar
-        self.window.update_idletasks()
-        w = self.window.winfo_width()
-        h = self.window.winfo_height()
-        x = (self.window.winfo_screenwidth() // 2) - (w // 2)
-        y = (self.window.winfo_screenheight() // 2) - (h // 2)
-        self.window.geometry(f"{w}x{h}+{x}+{y}")
+        # In fullscreen, centering is not needed
 
         # Variáveis
         self.username_var = tk.StringVar()
@@ -52,19 +55,27 @@ class LoginWindow:
 
     def _build_ui(self):
         container = tk.Frame(self.window, bg=PALETTE["bg_app"])
-        container.pack(fill="both", expand=True, padx=24, pady=24)
+        container.pack(fill="both", expand=True)
+
+        # Top brand bar
+        topbar = tk.Frame(container, bg=PALETTE["bg_header"], height=72)
+        topbar.pack(fill="x", side="top")
+        brand = tk.Label(topbar, text="Proposta Comercial", font=FONTS["title"], bg=PALETTE["bg_header"], fg="#ffffff")
+        brand.pack(side="left", padx=24, pady=18)
 
         title = tk.Label(
             container,
-            text="Acesse o sistema",
+            text="Entrar",
             font=FONTS["title"],
             bg=PALETTE["bg_app"],
-            fg="#1e293b",
+            fg=PALETTE["text_primary"],
         )
-        title.pack(anchor="center", pady=(0, 16))
+        title.pack(anchor="n", pady=(32, 12))
 
-        form = tk.Frame(container, bg=PALETTE["bg_app"])
-        form.pack(fill="x")
+        form_card = tk.Frame(container, bg='#ffffff', highlightthickness=1, highlightbackground=PALETTE["border"])
+        form_card.pack(fill="none", padx=24, pady=12)
+        form = tk.Frame(form_card, bg='#ffffff')
+        form.pack(fill="both", expand=True, padx=24, pady=24)
 
         # Usuário
         tk.Label(form, text="Usuário", font=FONTS["base"], bg=PALETTE["bg_app"]).pack(
@@ -73,7 +84,7 @@ class LoginWindow:
         self.username_entry = ttk.Entry(
             form, textvariable=self.username_var, font=FONTS["base"],
         )
-        self.username_entry.pack(fill="x", ipady=6, pady=(2, 12))
+        self.username_entry.pack(fill="x", ipady=10, pady=(2, 12))
 
         # Senha
         tk.Label(form, text="Senha", font=FONTS["base"], bg=PALETTE["bg_app"]).pack(anchor="w")
@@ -83,14 +94,14 @@ class LoginWindow:
             font=FONTS["base"],
             show="*",
         )
-        self.password_entry.pack(fill="x", ipady=6, pady=(2, 4))
+        self.password_entry.pack(fill="x", ipady=10, pady=(2, 4))
 
         # Bind Enter
         self.window.bind("<Return>", lambda _e: self._attempt_login())
 
         # Ações
-        actions = tk.Frame(container, bg=PALETTE["bg_app"]) 
-        actions.pack(fill="x", pady=(12, 0))
+        actions = tk.Frame(form, bg='#ffffff') 
+        actions.pack(fill="x", pady=(16, 0))
 
         login_btn = ttk.Button(
             actions,
@@ -109,10 +120,10 @@ class LoginWindow:
         quick_btn.pack(side="right")
 
         helper = tk.Label(
-            container,
+            form,
             text="Padrão: admin / admin123",
             font=FONTS["base"],
-            bg=PALETTE["bg_app"],
+            bg='#ffffff',
             fg="#64748b",
         )
         helper.pack(anchor="w", pady=(12, 0))

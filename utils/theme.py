@@ -8,23 +8,24 @@ from tkinter import ttk
 
 
 PALETTE = {
-    "bg_app": "#f8fafc",
+    # SAP Fiori-like palette
+    "bg_app": "#f7f7f7",
     "bg_card": "#ffffff",
-    "bg_header": "#1e293b",
-    "text_primary": "#0f172a",
-    "text_secondary": "#475569",
-    "accent": "#3b82f6",
-    "success": "#10b981",
-    "danger": "#ef4444",
-    "border": "#e2e8f0",
-    "focus": "#2563eb",
+    "bg_header": "#0a6ed1",
+    "text_primary": "#2c3f57",
+    "text_secondary": "#6a7d95",
+    "accent": "#0a6ed1",
+    "success": "#107e3e",
+    "danger": "#bb0000",
+    "border": "#dde3ea",
+    "focus": "#0854a0",
 }
 
 
 FONTS = {
     "base": ("Segoe UI", 10),
     "base_bold": ("Segoe UI", 10, "bold"),
-    "title": ("Segoe UI", 16, "bold"),
+    "title": ("Segoe UI", 18, "bold"),
     "subtitle": ("Segoe UI", 12, "bold"),
     "mono": ("Consolas", 10),
 }
