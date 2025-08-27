@@ -324,6 +324,38 @@ def criar_banco():
 
 	conn.commit()
 	conn.close()
+	
+	# Criar usuário master se não existir
+	criar_usuario_master()
+
+def criar_usuario_master():
+	"""Criar usuário master padrão se não existir"""
+	conn = sqlite3.connect(DB_NAME)
+	c = conn.cursor()
+	
+	try:
+		# Verificar se já existe um usuário admin
+		c.execute("SELECT COUNT(*) FROM usuarios WHERE role LIKE '%admin%'")
+		count = c.fetchone()[0]
+		if count == 0:
+			# Criar usuário master
+			import hashlib
+			password_hash = hashlib.sha256("admin123".encode()).hexdigest()
+			
+			c.execute("""
+				INSERT INTO usuarios (username, password, role, nome_completo, email, telefone)
+				VALUES (?, ?, ?, ?, ?, ?)
+			""", ("admin", password_hash, "admin", "Administrador", "admin@sistema.com", ""))
+			
+			conn.commit()
+			print("Usuário master criado: admin / admin123")
+		else:
+			print("Usuário admin já existe no sistema")
+			
+	except sqlite3.Error as e:
+		print(f"Erro ao criar usuário master: {e}")
+	finally:
+		conn.close()
 
 if __name__ == "__main__":
 	criar_banco()
