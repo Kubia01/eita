@@ -297,8 +297,13 @@ def gerar_pdf_cotacao_nova(cotacao_id, db_name, current_user=None, contato_nome=
         # Textos dinâmicos na capa, canto inferior esquerdo (branco, negrito, mesmo tamanho)
         try:
             pdf.set_text_color(255, 255, 255)
-            # Posição na parte inferior esquerda
-            pdf.set_xy(14, 262)  # ajuste fino se necessário
+            # Prevenir quebra automática ao escrever próximo ao rodapé
+            try:
+                pdf.set_auto_page_break(auto=False)
+            except Exception:
+                pass
+            # Posição segura na parte inferior esquerda (acima da margem)
+            pdf.set_xy(14, 248)  # ajuste fino se necessário
             try:
                 pdf.set_font('Arial', 'B', 12)
             except Exception:
@@ -320,6 +325,12 @@ def gerar_pdf_cotacao_nova(cotacao_id, db_name, current_user=None, contato_nome=
                 pdf.cell(0, 6, line, 0, 1, 'L')
         except Exception:
             pass
+        finally:
+            # Restaurar quebra automática para o restante do documento
+            try:
+                pdf.set_auto_page_break(auto=True, margin=30)
+            except Exception:
+                pass
         # Não exibir nenhum texto na capa
         pdf.set_text_color(0, 0, 0)
 
