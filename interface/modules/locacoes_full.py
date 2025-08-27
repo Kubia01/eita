@@ -139,8 +139,7 @@ class LocacoesModule(BaseModule):
 		self.cliente_combo = ttk.Combobox(cliente_frame, textvariable=self.cliente_var, width=25)
 		self.cliente_combo.pack(side="left", fill="x", expand=True)
 		self.cliente_combo.bind("<<ComboboxSelected>>", self._on_cliente_selected)
-		refresh_clientes_btn = self.create_button(cliente_frame, "🔄", self._refresh_clientes, bg='#10b981')
-		refresh_clientes_btn.pack(side="right", padx=(5, 0))
+		# Refresh button removed
 		row += 1
 
 		tk.Label(dados, text="Contato:", font=('Arial', 10, 'bold'), bg='white').grid(row=row, column=0, sticky="w", pady=5)

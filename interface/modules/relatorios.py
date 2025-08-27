@@ -1481,3 +1481,15 @@ class RelatoriosModule(BaseModule):
 				subprocess.Popen(['xdg-open', caminho])
 		except Exception as e:
 			self.show_error(f"Não foi possível abrir o anexo: {e}")
+			
+	def on_cliente_selected(self, event=None):
+		"""Evento disparado quando um cliente é selecionado"""
+		cliente_str = self.cliente_var.get().strip()
+		if not cliente_str:
+			return
+			
+		cliente_id = self.clientes_dict.get(cliente_str)
+		if cliente_id:
+			# Aqui você pode adicionar lógica adicional quando um cliente é selecionado
+			# Por exemplo, carregar dados específicos do cliente
+			pass
