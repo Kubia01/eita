@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import importlib
-from interface.modules import (
+from .modules import (
     DashboardModule,
     ClientesModule,
     ProdutosModule,
