@@ -95,29 +95,40 @@ class PDFCotacao(FPDF):
         return True
 
     def header(self):
-        # Não exibir header na capa
-        if self.page_no() == 1:
+        # Não exibir header na capa nem na página 2 (comportamento antigo)
+        if self.page_no() in (1, 2):
             return
 
         # Borda da página
         self.set_line_width(0.5)
         self.rect(5, 5, 200, 287)
 
-        # Cabeçalho com imagem fixa
+        # Cabeçalho com imagem fixa ocupando toda a faixa do cabeçalho, encostando na borda
         try:
             header_img = os.path.join(os.path.dirname(__file__), '..', 'cabeçalho.jpeg')
             if not os.path.exists(header_img):
                 header_img = os.path.join(os.path.dirname(__file__), '..', 'cabecalho.jpeg')
             if os.path.exists(header_img):
-                # Largura útil ~190mm; altura do header ~25mm
-                self.image(header_img, x=10, y=8, w=190)
+                # Largura total entre bordas (200mm), altura do cabeçalho ~30mm
+                self.image(header_img, x=5, y=5, w=200, h=30)
         except Exception:
             pass
+
+        # Garantir que nenhum texto fique sobre o cabeçalho
+        try:
+            # Definir margem superior e cursor abaixo do header
+            self.set_top_margin(40)
+        except Exception:
+            pass
+        if self.get_y() < 40:
+            self.set_y(40)
 
         # Se estiver em seção e esta for uma página complementar, reposicionar e imprimir o título do módulo
         if self._section_mode and getattr(self, '_section_cont_break', False):
             if self._section_top_cont is not None:
-                self.set_y(self._section_top_cont)
+                # Nunca permitir conteúdo dentro da faixa do cabeçalho
+                safe_top = max(self._section_top_cont, 45)
+                self.set_y(safe_top)
             if self._section_title:
                 self.set_font("Arial", 'B', 14)
                 self.cell(0, 8, clean_text(self._section_title), 0, 1, 'L')
