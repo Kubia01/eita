@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import sqlite3
+from database import DB_NAME
 
 class MainWindow:
     def __init__(self, root, user_id, role, nome_completo):
@@ -64,6 +66,7 @@ class MainWindow:
         self.notebook.pack(fill="both", expand=True, padx=10, pady=(0, 10))
         
         # Criar módulos
+        self._load_user_permissions()
         self.create_modules()
         
     def create_header(self):
@@ -113,28 +116,87 @@ class MainWindow:
                 mod = __import__(module_path, fromlist=[class_name])
                 cls = getattr(mod, class_name)
                 instance = cls(frame, self.user_id, self.role, self)
+                # Se módulo estiver como somente leitura, tentar aplicar
+                module_key = self._tab_text_to_key(tab_text)
+                if not self.can_edit(module_key) and hasattr(instance, 'set_read_only'):
+                    try:
+                        instance.set_read_only(True)
+                    except Exception:
+                        pass
                 return instance
             except Exception as e:
                 messagebox.showerror("Erro ao carregar módulo", f"Falha ao carregar {tab_text}:\n\n{e}")
                 return None
 
         # Dashboard
-        self.dashboard_module = add_module("📊 Dashboard", "interface.modules.dashboard", "DashboardModule")
+        if self.has_access('dashboard'):
+            self.dashboard_module = add_module("📊 Dashboard", "interface.modules.dashboard", "DashboardModule")
         # Clientes
-        self.clientes_module = add_module("👥 Clientes", "interface.modules.clientes", "ClientesModule")
+        if self.has_access('clientes'):
+            self.clientes_module = add_module("👥 Clientes", "interface.modules.clientes", "ClientesModule")
         # Produtos
-        self.produtos_module = add_module("📦 Produtos", "interface.modules.produtos", "ProdutosModule")
+        if self.has_access('produtos'):
+            self.produtos_module = add_module("📦 Produtos", "interface.modules.produtos", "ProdutosModule")
         # Compras (Cotações de compra)
-        self.cotacoes_module = add_module("💰 Compras", "interface.modules.cotacoes", "CotacoesModule")
+        if self.has_access('cotacoes'):
+            self.cotacoes_module = add_module("💰 Compras", "interface.modules.cotacoes", "CotacoesModule")
         # Locações (aba separada - módulo independente)
-        self.locacoes_module = add_module("📄 Locações", "interface.modules.locacoes_full", "LocacoesModule")
+        if self.has_access('relatorios') or self.has_access('cotacoes'):
+            # manter lógica de locações na permissão de cotações/relatórios se necessário, ou crie chave própria
+            if self.has_access('relatorios') or self.has_access('cotacoes'):
+                self.locacoes_module = add_module("📄 Locações", "interface.modules.locacoes_full", "LocacoesModule")
         # Relatórios
-        self.relatorios_module = add_module("📋 Relatórios", "interface.modules.relatorios", "RelatoriosModule")
-        # Consultas
-        # Usuários e Permissões (apenas admin)
-        if self.has_role('admin'):
+        if self.has_access('relatorios'):
+            self.relatorios_module = add_module("📋 Relatórios", "interface.modules.relatorios", "RelatoriosModule")
+        # Usuários e Permissões
+        if self.has_access('usuarios'):
             self.usuarios_module = add_module("👤 Usuários", "interface.modules.usuarios", "UsuariosModule")
+        if self.has_access('permissoes'):
             self.permissoes_module = add_module("🔐 Permissões", "interface.modules.permissoes", "PermissoesModule")
+
+    def _tab_text_to_key(self, tab_text: str) -> str:
+        mapping = {
+            '📊 Dashboard': 'dashboard',
+            '👥 Clientes': 'clientes',
+            '📦 Produtos': 'produtos',
+            '💰 Compras': 'cotacoes',
+            '📄 Locações': 'relatorios',
+            '📋 Relatórios': 'relatorios',
+            '👤 Usuários': 'usuarios',
+            '🔐 Permissões': 'permissoes',
+        }
+        return mapping.get(tab_text, '')
+
+    def _load_user_permissions(self):
+        """Carrega as permissões do usuário corrente em self.user_permissions"""
+        self.user_permissions = {}
+        try:
+            conn = sqlite3.connect(DB_NAME)
+            c = conn.cursor()
+            c.execute("SELECT modulo, nivel_acesso FROM permissoes_usuarios WHERE usuario_id = ?", (self.user_id,))
+            self.user_permissions = dict(c.fetchall())
+        except Exception as e:
+            print(f"Aviso: falha ao carregar permissões: {e}")
+            self.user_permissions = {}
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+    def has_access(self, module_key: str) -> bool:
+        """Retorna True se o usuário pode ver o módulo (ou se for admin)."""
+        if self.has_role('admin'):
+            return True
+        level = (self.user_permissions or {}).get(module_key, 'sem_acesso')
+        return level in ('consulta', 'controle_total')
+
+    def can_edit(self, module_key: str) -> bool:
+        """Retorna True se o usuário pode editar o módulo (ou se for admin)."""
+        if self.has_role('admin'):
+            return True
+        level = (self.user_permissions or {}).get(module_key, 'sem_acesso')
+        return level == 'controle_total'
         
     def logout(self):
         """Fazer logout e voltar para tela de login"""
