@@ -294,39 +294,30 @@ def gerar_pdf_cotacao_nova(cotacao_id, db_name, current_user=None, contato_nome=
         if os.path.exists(capa_path):
             pdf.image(capa_path, x=0, y=0, w=210, h=297)
 
-        # Textos dinâmicos na capa, centralizados, abaixo de "Proposta Comercial"
+        # Textos dinâmicos na capa, canto inferior esquerdo (branco, negrito, mesmo tamanho)
         try:
-            # branco para contraste sobre a imagem de capa
             pdf.set_text_color(255, 255, 255)
-            # posicionamento aproximado (ajuste fino se necessário)
-            pdf.set_xy(10, 160)
+            # Posição na parte inferior esquerda
+            pdf.set_xy(14, 262)  # ajuste fino se necessário
             try:
-                pdf.set_font('Arial', 'B', 14)
+                pdf.set_font('Arial', 'B', 12)
             except Exception:
-                pdf.set_pdf_font('B', 14)
+                pdf.set_pdf_font('B', 12)
 
             cliente_line = (pdf.cliente_nome or '').strip()
             if cliente_line:
                 line = getattr(pdf, 'clean_pdf_text', lambda x: x)(cliente_line)
-                pdf.cell(190, 8, line, 0, 1, 'C')
+                pdf.cell(0, 6, line, 0, 1, 'L')
 
             contato_line = (contato_nome or '').strip()
             if contato_line:
-                try:
-                    pdf.set_font('Arial', '', 12)
-                except Exception:
-                    pdf.set_pdf_font('', 12)
                 line = getattr(pdf, 'clean_pdf_text', lambda x: x)(f"A/C : {contato_line}")
-                pdf.cell(190, 7, line, 0, 1, 'C')
+                pdf.cell(0, 6, line, 0, 1, 'L')
 
             data_line = getattr(pdf, 'data_proposta', None) or format_date(data_criacao)
             if data_line:
-                try:
-                    pdf.set_font('Arial', '', 12)
-                except Exception:
-                    pdf.set_pdf_font('', 12)
                 line = getattr(pdf, 'clean_pdf_text', lambda x: x)(f"Data: {data_line}")
-                pdf.cell(190, 7, line, 0, 1, 'C')
+                pdf.cell(0, 6, line, 0, 1, 'L')
         except Exception:
             pass
         # Não exibir nenhum texto na capa
