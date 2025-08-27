@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from utils.theme import PALETTE, FONTS
 
 class BaseModule:
     """Classe base para todos os módulos do sistema"""
@@ -14,8 +15,8 @@ class BaseModule:
         if hasattr(main_window, 'register_listener'):
             main_window.register_listener(self.handle_event)
         
-        # Frame principal do módulo
-        self.frame = tk.Frame(parent, bg='#f8fafc')
+        # Frame principal do módulo (container visual)
+        self.frame = tk.Frame(parent, bg=PALETTE["bg_app"])
         self.frame.pack(fill="both", expand=True)
         
         # Configurar UI específica do módulo
@@ -43,45 +44,50 @@ class BaseModule:
             return self.role == role_name
     
     def create_section_frame(self, parent, title, padx=10, pady=10):
-        """Criar frame de seção com título"""
-        section_frame = tk.LabelFrame(parent, text=title, 
-                                      font=('Arial', 11, 'bold'),
-                                      bg='white',
-                                      padx=padx, pady=pady)
-        return section_frame
+        """Criar frame de seção com título (visual moderno)"""
+        outer = tk.Frame(parent, bg=PALETTE["bg_app"])  # spacing wrapper
+        outer.pack_propagate(False)
+        card = tk.Frame(outer, bg='#ffffff', highlightthickness=1, highlightbackground=PALETTE["border"])
+        card.pack(fill="both", expand=True)
+        header = tk.Label(card, text=title, font=FONTS["subtitle"], bg='#ffffff', fg=PALETTE["text_primary"])
+        header.pack(anchor="w", padx=12, pady=(12, 6))
+        body = tk.Frame(card, bg='#ffffff')
+        body.pack(fill="both", expand=True, padx=12, pady=(0, 12))
+        # Return the body so callers add content as antes
+        body._outer_container = outer  # allow caller to pack/place the whole block if needed
+        return body
     
-    def create_button(self, parent, text, command, bg='#3b82f6', fg='white', **kwargs):
-        """Criar botão estilizado"""
-        button = tk.Button(parent, 
-                          text=text,
-                          command=command,
-                          font=('Arial', 10),
-                          bg=bg,
-                          fg=fg,
-                          relief='flat',
-                          cursor='hand2',
-                          padx=15,
-                          pady=8,
-                          **kwargs)
+    def create_button(self, parent, text, command, variant='primary', **kwargs):
+        """Criar botão estilizado (mantém assinatura compatível por kwargs)."""
+        style = {
+            'primary': 'Primary.TButton',
+            'success': 'Success.TButton',
+            'danger': 'Danger.TButton',
+        }.get(variant, 'Primary.TButton')
+        button = ttk.Button(parent, text=text, command=command, style=style, **kwargs)
         return button
     
     def create_search_frame(self, parent, placeholder="Buscar...", command=None):
         """Criar frame de busca padronizado"""
-        search_frame = tk.Frame(parent, bg='white')
+        search_frame = tk.Frame(parent, bg='#ffffff', highlightthickness=1, highlightbackground=PALETTE["border"]) 
         
         search_var = tk.StringVar()
-        search_entry = tk.Entry(search_frame, 
-                               textvariable=search_var,
-                               font=('Arial', 10),
-                               relief='solid',
-                               bd=1)
-        search_entry.pack(side="left", fill="x", expand=True, ipady=5)
+        search_entry = ttk.Entry(search_frame, textvariable=search_var)
+        search_entry.pack(side="left", fill="x", expand=True, ipady=5, padx=(8, 0), pady=6)
+        search_entry.insert(0, placeholder)
+
+        def _on_focus_in(_e):
+            if search_entry.get() == placeholder:
+                search_entry.delete(0, 'end')
+        def _on_focus_out(_e):
+            if not search_entry.get().strip():
+                search_entry.insert(0, placeholder)
+        search_entry.bind('<FocusIn>', _on_focus_in)
+        search_entry.bind('<FocusOut>', _on_focus_out)
         
         if command:
-            search_btn = self.create_button(search_frame, "🔍 Buscar", command)
-            search_btn.pack(side="right", padx=(10, 0))
-            
-            # Bind Enter key
+            search_btn = self.create_button(search_frame, "Buscar", command, variant='primary')
+            search_btn.pack(side="right", padx=8, pady=6)
             search_entry.bind('<Return>', lambda e: command())
         
         return search_frame, search_var
