@@ -187,7 +187,6 @@ class UsuariosModule(BaseModule):
         self.telefone_var.set("")
         self.template_personalizado_var.set(False)
         self.template_image_path_var.set("")
-        self.upload_frame.pack_forget()
         
     def _construir_roles_string(self) -> str:
         roles = []
@@ -473,27 +472,10 @@ class UsuariosModule(BaseModule):
             conn.close()    
     def toggle_template_upload(self):
         """Mostrar/ocultar campo de upload quando checkbox é marcado"""
-        if self.template_personalizado_var.get():
-            self.upload_frame.pack(fill="x", pady=(5, 0))
-        else:
-            self.upload_frame.pack_forget()
-            self.template_image_path_var.set("")
+        # Funcionalidade removida - template personalizado não é mais usado
+        pass
     
     def browse_template_image(self):
         """Procurar arquivo de imagem para template"""
-        from tkinter import filedialog
-        
-        filetypes = [
-            ("Imagens", "*.jpg *.jpeg *.png *.bmp *.gif"),
-            ("JPEG", "*.jpg *.jpeg"),
-            ("PNG", "*.png"),
-            ("Todos os arquivos", "*.*")
-        ]
-        
-        filename = filedialog.askopenfilename(
-            title="Selecionar Imagem do Template",
-            filetypes=filetypes
-        )
-        
-        if filename:
-            self.template_image_path_var.set(filename)
+        # Funcionalidade removida - template personalizado não é mais usado
+        pass
