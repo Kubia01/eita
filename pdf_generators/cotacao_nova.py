@@ -103,17 +103,28 @@ class PDFCotacao(FPDF):
         self.set_line_width(0.5)
         self.rect(5, 5, 200, 287)
 
-        # Cabeçalho com imagem fixa ocupando toda a faixa do cabeçalho, encostando na borda
-        # (incluindo página 2, mas sem logo)
+        # Cabeçalho com logo da empresa
         try:
-            header_img = os.path.join(os.path.dirname(__file__), '..', 'cabeçalho.jpeg')
-            if not os.path.exists(header_img):
-                header_img = os.path.join(os.path.dirname(__file__), '..', 'cabecalho.jpeg')
-            if os.path.exists(header_img):
-                # Posicionar a imagem dentro da borda (sem cobrir a linha)
-                self.image(header_img, x=5.5, y=5.5, w=199, h=29)
+            logo_path = os.path.join(os.path.dirname(__file__), '..', 'logo.jpg')
+            if os.path.exists(logo_path):
+                # Posicionar o logo no cabeçalho (lado esquerdo)
+                self.image(logo_path, x=10, y=8, w=40, h=20)
+                
+                # Adicionar texto do cabeçalho (lado direito)
+                self.set_font("Arial", 'B', 12)
+                self.set_text_color(0, 0, 0)
+                self.set_xy(60, 10)
+                self.cell(140, 6, "WORLD COMP COMPRESSORES", 0, 0, 'R')
+                self.set_xy(60, 16)
+                self.cell(140, 6, "Soluções em Compressão", 0, 0, 'R')
         except Exception:
-            pass
+            # Fallback: cabeçalho simples com texto
+            self.set_font("Arial", 'B', 14)
+            self.set_text_color(0, 0, 0)
+            self.set_xy(10, 10)
+            self.cell(190, 8, "WORLD COMP COMPRESSORES", 0, 0, 'C')
+            self.set_xy(10, 18)
+            self.cell(190, 6, "Soluções em Compressão", 0, 0, 'C')
 
         # Garantir que nenhum texto fique sobre o cabeçalho
         try:
