@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  crm-compressores:
+    build: .
+    container_name: crm-compressores
+    environment:
+      - DISPLAY=${DISPLAY}
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Volume para persistir dados do banco
+      - ./data:/app/data
+      # Volume para compartilhar arquivos gerados
+      - ./output:/app/output
+      # Volume para logs
+      - ./logs:/app/logs
+    # Para interface gráfica no Windows/Linux
+    network_mode: host
+    # Para macOS, usar:
+    # network_mode: bridge
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
